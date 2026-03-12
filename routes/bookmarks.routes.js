@@ -3,7 +3,7 @@ import express from "express";
 const router = express.Router();
 // Define routes for bookmarks here
 
-router.post("/", (req, res) => {
+router.post("/add", (req, res) => {
     // Logic to add a bookmark
     res.json({ message: "Bookmark added successfully" });
 });
