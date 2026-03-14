@@ -2,15 +2,15 @@ import express from "express";
 
 const router = express.Router();
 
-// Get user allergens (protected)
+// Get the logged-in user's allergen list.
 router.get("/allergens", (req, res) => {
-  // TODO: Implement with auth middleware (Week 4)
+  // TODO: Add token check middleware so only logged-in users can access this route.
   res.json({ allergens: [] });
 });
 
-// Update user allergens (protected)
+// Update the logged-in user's allergen list.
 router.put("/allergens", (req, res) => {
-  // TODO: Implement with auth middleware (Week 4)
+  // TODO: Add token check middleware so only logged-in users can update this route.
   res.json({ message: "Allergens updated" });
 });
 
