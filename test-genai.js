@@ -3,14 +3,13 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Try both apiKey inside and GEMINI_API_KEY as env
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 async function main() {
   console.log("Using API Key:", process.env.GEMINI_API_KEY ? "Present" : "Missing");
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview", // Use a more likely available model first
+      model: "gemini-3-flash-preview",
       contents: "Say 'Hello from Gemini!'",
     });
     console.log("Success:", response.text);

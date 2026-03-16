@@ -3,4 +3,3 @@ node_modules/
 .env.example
 .vscode/
 *.pdf
-.test-genai.js
