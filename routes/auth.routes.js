@@ -6,24 +6,38 @@ import { verifyToken } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
+function isValidEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 // Create a new user account.
 router.post("/register", (req, res) => {
   // Steps: validate input, check for duplicate email, hash password, save user, and return a token.
 
-  const { username, email, password } = req.body;
+  const { username, email, password, allergens } = req.body;
 
   // Make sure all required fields are present.
   if (!username || !email || !password) {
     return res.status(400).json({ message: "All fields are required" });
   }
   // Make sure the email looks valid.
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!isValidEmail(email)) {
     return res.status(400).json({ message: "Invalid email format" });
   }
   // Require a stronger password.
   if (password.length < 6 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/\d/.test(password)) {
     return res.status(400).json({ message: "Password must be at least 6 characters long and contain uppercase, lowercase, and a number" });
+  }
+
+  // Normalize allergens if provided (optional).
+  let normalizedAllergens = [];
+  if (allergens && Array.isArray(allergens)) {
+    normalizedAllergens = [...new Set(
+      allergens
+        .map((item) => String(item || "").trim())
+        .filter((item) => item.length > 0)
+    )];
   }
 
     // Stop if this email is already registered.
@@ -34,7 +48,7 @@ router.post("/register", (req, res) => {
     else {
       // Hash the password before storing it.
       bcrypt.hash(password, 10).then((hashedPassword) => {
-        const newUser = new User({ username, email, password: hashedPassword }); // Create a new user with a hashed password.
+        const newUser = new User({ username, email, allergens: normalizedAllergens, password: hashedPassword }); // Create a new user with a hashed password.
         newUser.save().then((savedUser) => {
           const token = jwt.sign({ userId: savedUser._id }, process.env.JWT_SECRET, { expiresIn: "1h" }); // Create a login token for the new user.
           res.json({ token });
@@ -47,6 +61,9 @@ router.post("/register", (req, res) => {
         res.status(500).json({ message: "Error hashing password" });
       });
     }
+}).catch((err) => {
+    console.error("Error checking existing user:", err);
+    res.status(500).json({ message: "Error checking existing user" });
   });
 });
 
@@ -59,8 +76,7 @@ router.post("/login", (req, res) => {
     return res.status(400).json({message: "Email and password fields are required"});
   }
   // Make sure the email looks valid.
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) {
+  if (!isValidEmail(email)) {
     return res.status(400).json({ message: "Invalid email format" });
   }
 
@@ -103,4 +119,5 @@ router.get("/me", verifyToken, (req, res) => {
 
   return res.json({ user });
 });
+
 export default router;

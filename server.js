@@ -26,7 +26,22 @@ dotenv.config();
 const app = express();
 
 // Set up shared middleware.
-app.use(cors({ origin: "http://localhost:5500" }));
+const allowedOrigins = new Set([
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000"
+]);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow non-browser tools and file:// origin during local development.
+    if (!origin || origin === "null" || allowedOrigins.has(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  }
+}));
 app.use(express.json());
 
 // Register API route groups.
