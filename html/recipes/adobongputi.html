@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adobong Puti Recipe | The Filipino Plate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/user-home.css">
+    <link rel="stylesheet" href="/css/detailed-recipe.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="nav-left">
+        <a href="/html/user-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+        <a href="/html/recipe-main-page.html" class="nav-item">Recipes</a>
+    </div>
+
+    <div class="logo">
+        <img src="/images/filipinologo (1).png" alt="The Filipino Plate Logo">
+    </div>
+
+    <div class="nav-right">
+        <button class="icon-btn ai-btn" title="AI Kitchen Assistant" onclick="openModal('aiModal')"><i class="fas fa-robot"></i></button>
+        <a href="#" class="icon-btn profile-link" title="My Profile"><i class="fas fa-user-circle"></i></a>
+    </div>
+</div>
+
+<section class="recipe-hero">
+    <div class="recipe-hero-container">
+        <div class="recipe-main-img">
+            <img src="/images/Adobong Puti Slide.png" alt="Filipino Adobong Puti">
+        </div>
+    
+        <div class="recipe-header-text">
+            <div class="header-actions">
+                <div class="allergen-alert" style="background-color: #e8f5e9; color: #2e7d32; border-color: #2e7d32;">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span>Soy-Free Version</span>
+                </div>
+                <button class="bookmark-btn" onclick="this.classList.toggle('active')">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+            </div>
+
+            <span class="category-tag">Classic Nilaga / Stew</span>
+            <h1>Adobong Puti</h1>
+            <p>The ancestral way of cooking Adobo. By omitting soy sauce and using salt and extra garlic, the natural flavor of the pork and the tang of the vinegar shine through.</p>
+            
+            <div class="recipe-meta">
+                <div class="meta-item"><i class="fa-regular fa-clock"></i> <span>Prep: 10m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-fire-burner"></i> <span>Cook: 50m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-utensils"></i> <span>Servings: 4</span></div>
+            </div>
+
+            <div class="variations-box">
+                <span>View other versions:</span>
+                <div class="variation-links">
+                    <a href="/html/recipes/adobongbaboy.html" class="v-btn">Pork Adobo</a>
+                    <a href="/html/recipes/adobongmanok.html" class="v-btn">Chicken Adobo</a>
+                    <a href="/html/recipes/adobongsitaw.html" class="v-btn">Adobong Sitaw</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recipe-body">
+    <div class="recipe-grid-layout">
+        <div class="ingredients-side">
+            <h2>Ingredients</h2>
+            <ul>
+                <li>1 kg Pork Belly (Liempo), cubed</li>
+                <li>1/2 cup White Cane Vinegar</li>
+                <li>2 tbsp Sea Salt</li>
+                <li>10 cloves Garlic, crushed</li>
+                <li>3 pieces Dried Bay Leaves</li>
+                <li>1 tbsp Whole Peppercorns</li>
+                <li>1 cup Water</li>
+                <li>2 tbsp Cooking Oil</li>
+            </ul>
+        </div>
+
+        <div class="instructions-side">
+            <h2>Instructions</h2>
+            <div class="step">
+                <div class="step-num">1</div>
+                <p>Marinate the pork in vinegar, salt, and half of the garlic for at least 30 minutes.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <p>Sauté the remaining garlic in oil until golden brown. Add the pork and sear until lightly browned.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <p>Pour in the marinade, water, bay leaves, and peppercorns. Bring to a boil.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <p>Simmer on low heat for 40-45 minutes until the pork is tender and the liquid has reduced.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <p>Continue to cook until the sauce turns into a clear, savory oil. The pork should be slightly crispy.</p>
+            </div>
+            <div class="step">
+                <div class="step-num">6</div>
+                <p>Adjust salt to taste and serve with warm garlic rice.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+        <h2 class="footer-brand">THE FILIPINO PLATE</h2>
+        <div class="footer-bottom">
+            <p>&copy; 2026 THE FILIPINO PLATE. ALL RIGHTS RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinigang na Baboy | The Filipino Plate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/user-home.css">
+    <link rel="stylesheet" href="/css/detailed-recipe.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="nav-left">
+        <a href="/html/user-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+        <a href="/html/recipe-main-page.html" class="nav-item">Recipes</a>
+    </div>
+    <div class="logo"><img src="/images/filipinologo (1).png" alt="Logo"></div>
+    <div class="nav-right">
+        <button class="icon-btn ai-btn" onclick="openModal('aiModal')"><i class="fas fa-robot"></i></button>
+        <a href="#" class="icon-btn"><i class="fas fa-user-circle"></i></a>
+    </div>
+</div>
+
+<section class="recipe-hero">
+    <div class="recipe-hero-container">
+        <div class="recipe-main-img"><img src="/images/Sinigang na Baboy Slide.png" alt="Sinigang na Baboy"></div>
+        <div class="recipe-header-text">
+            <div class="header-actions">
+                <div class="allergen-alert">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Contains: Shellfish (Patis)</span>
+                </div>
+                <button class="bookmark-btn" onclick="this.classList.toggle('active')"><i class="fa-solid fa-heart"></i></button>
+            </div>
+            <span class="category-tag">Classic Nilaga / Sour Soup</span>
+            <h1>Sinigang na Baboy</h1>
+            <p>The ultimate comfort food. Tender pork belly simmered in a signature sour tamarind broth with crisp local vegetables.</p>
+            <div class="recipe-meta">
+                <div class="meta-item"><i class="fa-regular fa-clock"></i> <span>Prep: 15m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-fire-burner"></i> <span>Cook: 1h</span></div>
+                <div class="meta-item"><i class="fa-solid fa-utensils"></i> <span>Servings: 4-6</span></div>
+            </div>
+            <div class="variations-box">
+                <span>Other Sinigang styles:</span>
+                <div class="variation-links">
+                    <a href="/html/recipes/sinigang-hipon.html" class="v-btn">Sinigang na Hipon</a>
+                    <a href="/html/recipes/sinigang-bangus.html" class="v-btn">Sinigang na Bangus</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recipe-body">
+    <div class="recipe-grid-layout">
+        <div class="ingredients-side">
+            <h2>Ingredients</h2>
+            <ul>
+                <li>1 kg Pork Belly (Liempo), cubed</li>
+                <li>1 pack Sinigang Mix (Tamarind base)</li>
+                <li>2 pieces Gabi (Taro), quartered</li>
+                <li>1 bunch Kangkong (Water Spinach)</li>
+                <li>1 large Radish, sliced</li>
+                <li>2 medium Tomatoes, quartered</li>
+                <li>1 large Onion, quartered</li>
+                <li>3 pieces Long Green Chili (Siling Haba)</li>
+                <li>8-10 cups Water</li>
+            </ul>
+        </div>
+        <div class="instructions-side">
+            <h2>Instructions</h2>
+            <div class="step"><div class="step-num">1</div><p>In a large pot, combine water, pork, onions, and tomatoes. Bring to a boil and simmer until pork is tender.</p></div>
+            <div class="step"><div class="step-num">2</div><p>Add the gabi (taro) and simmer for another 10-15 minutes until it begins to soften and thicken the soup.</p></div>
+            <div class="step"><div class="step-num">3</div><p>Pour in the sinigang mix. Adjust the amount based on your preferred level of sourness.</p></div>
+            <div class="step"><div class="step-num">4</div><p>Add the radish and green chilies. Cook for 5 minutes.</p></div>
+            <div class="step"><div class="step-num">5</div><p>Add the kangkong leaves, cover the pot, and turn off the heat. Let the residual heat wilt the greens. Serve hot.</p></div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+        <h2 class="footer-brand">THE FILIPINO PLATE</h2>
+        <div class="footer-bottom"><p>&copy; 2026 THE FILIPINO PLATE. ALL RIGHTS RESERVED.</p></div>
+    </div>
+</footer>
+</body>
+</html>

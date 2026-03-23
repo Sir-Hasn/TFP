@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinigang na Bangus | The Filipino Plate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/user-home.css">
+    <link rel="stylesheet" href="/css/detailed-recipe.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="nav-left">
+        <a href="/html/user-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+        <a href="/html/recipe-main-page.html" class="nav-item">Recipes</a>
+    </div>
+    <div class="logo"><img src="/images/filipinologo (1).png" alt="Logo"></div>
+    <div class="nav-right">
+        <button class="icon-btn ai-btn" onclick="openModal('aiModal')"><i class="fas fa-robot"></i></button>
+        <a href="#" class="icon-btn"><i class="fas fa-user-circle"></i></a>
+    </div>
+</div>
+
+<section class="recipe-hero">
+    <div class="recipe-hero-container">
+        <div class="recipe-main-img"><img src="/images/Sinigang na Bangus Slide.png" alt="Sinigang na Bangus"></div>
+        <div class="recipe-header-text">
+            <div class="header-actions">
+                <div class="allergen-alert">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>Contains: Fish</span>
+                </div>
+                <button class="bookmark-btn" onclick="this.classList.toggle('active')"><i class="fa-solid fa-heart"></i></button>
+            </div>
+            <span class="category-tag">Seafood / Nilaga</span>
+            <h1>Sinigang na Bangus</h1>
+            <p>A healthy, refreshing seafood stew featuring milkfish. The belly fat of the bangus melts into the sour tamarind broth for a rich finish.</p>
+            <div class="recipe-meta">
+                <div class="meta-item"><i class="fa-regular fa-clock"></i> <span>Prep: 15m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-fire-burner"></i> <span>Cook: 25m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-utensils"></i> <span>Servings: 4</span></div>
+            </div>
+            <div class="variations-box">
+                <span>Other Sinigang styles:</span>
+                <div class="variation-links">
+                    <a href="/html/recipes/sinigang-baboy.html" class="v-btn">Sinigang na Baboy</a>
+                    <a href="/html/recipes/sinigang-hipon.html" class="v-btn">Sinigang na Hipon</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recipe-body">
+    <div class="recipe-grid-layout">
+        <div class="ingredients-side">
+            <h2>Ingredients</h2>
+            <ul>
+                <li>1 large Bangus (Milkfish), sliced</li>
+                <li>1 pack Sinigang Mix</li>
+                <li>1 bunch Mustasa (Mustard Greens)</li>
+                <li>1 medium Radish, sliced</li>
+                <li>2 pieces Tomatoes, quartered</li>
+                <li>1 medium Ginger, sliced</li>
+                <li>1 large Onion, sliced</li>
+                <li>8 cups Water</li>
+            </ul>
+        </div>
+        <div class="instructions-side">
+            <h2>Instructions</h2>
+            <div class="step"><div class="step-num">1</div><p>Boil water with ginger, onions, and tomatoes. The ginger helps remove the fishy scent.</p></div>
+            <div class="step"><div class="step-num">2</div><p>Add the radish and simmer for 5 minutes.</p></div>
+            <div class="step"><div class="step-num">3</div><p>Carefully add the bangus slices and sinigang mix. Avoid over-stirring to keep the fish intact.</p></div>
+            <div class="step"><div class="step-num">4</div><p>Once the fish is cooked, add the mustasa leaves.</p></div>
+            <div class="step"><div class="step-num">5</div><p>Turn off the heat and let the leaves cook in the steam for 2 minutes. Serve immediately.</p></div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

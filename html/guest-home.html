@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE FILIPINO PLATE</title>
+    <link rel="icon" type="image/jpg" href="/images/favicon.png">
+    <link rel="stylesheet" href="/css/guest-home.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="nav-left">
+        <a href="/html/guest-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+    </div>
+    
+    <div class="logo">
+        <img src="/images/filipinologo (1).png" alt="The Filipino Plate Logo">
+    </div>
+
+    <div class="nav-right">
+        <button class="nav-login" onclick="openModal('loginModal')">Log-In</button>
+        <button class="btn-signup" onclick="openModal('signupModal')">Sign Up</button>
+    </div>
+</header>
+
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-left">
+            <h1>Your daily ulam, made simple.</h1>
+            <h3>Discover. Plan. Enjoy.</h3>
+            <p>
+                Say goodbye to repetitive meals, hello to flavor. Discover a world of Filipino dishes that keep your table exciting every day. Fresh ideas, endless variety, and a smarter way to plan your ulam.
+            </p>
+        </div>
+        <div class="hero-right">
+            <img src="/images/home.png" alt="Featured Filipino Dish">
+        </div>
+    </div>
+</section>
+
+<section class="features-grid">
+    <div class="feature-card">
+        <div class="feature-visual"><i class="fas fa-utensils"></i></div>
+        <h3>The Recipe Discovery</h3>
+        <p>Browse a curated collection of classic and modern Filipino dishes tailored to your cravings.</p>
+    </div>
+
+    <div class="feature-card highlight">
+        <div class="feature-visual"><i class="fas fa-robot"></i></div>
+        <h3>AI Kitchen Assistant</h3>
+        <p>Tell us what's in your fridge and let our AI magic suggest the perfect recipe instantly.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-visual"><i class="fas fa-chart-pie"></i></div>
+        <h3>Variety Tracker</h3>
+        <p>Break the cycle of eating the same thing every week with our visual meal diversity charts.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-visual"><i class="fas fa-shield-virus"></i></div>
+        <h3>Safe & Smart Filters</h3>
+        <p>Keep your family safe by instantly filtering out allergens like shrimp, peanuts, or dairy.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-visual"><i class="fas fa-clock"></i></div>
+        <h3>Quick Meal Planning</h3>
+        <p>From 15-minute weekday ginisas to weekend feasts, find meals that fit your busy schedule.</p>
+    </div>
+</section>
+
+<div id="loginModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('loginModal')">&times;</span>
+        <h2>Welcome Back</h2>
+        <form>
+            <input type="email" placeholder="Email Address" required>
+            <input type="password" placeholder="Password" required>
+            <button type="submit" class="auth-btn">Log In</button>
+        </form>
+        <p class="auth-toggle">Don't have an account yet? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'signupModal')">Sign Up</a></p>
+    </div>
+</div>
+
+<div id="signupModal" class="modal">
+    <div class="modal-content signup-wide">
+        <span class="close" onclick="closeModal('signupModal')">&times;</span>
+        
+        <div id="signup-step-1">
+            <h2>Create Account</h2>
+            <form onsubmit="event.preventDefault(); nextStep();">
+                <input type="text" placeholder="First Name, Last Name" required>
+                <input type="email" placeholder="Email Address" required>
+                <input type="password" placeholder="Create Password" required>
+                <button type="submit" class="auth-btn">Next: Set Preferences</button>
+            </form>
+            <p class="auth-toggle">Already have an account? <a href="javascript:void(0)" onclick="switchModal('signupModal', 'loginModal')">Log In</a></p>
+        </div>
+
+        <div id="signup-step-2" style="display: none;">
+            <h2>Any Allergies?</h2>
+            <p style="font-size: 0.8rem; margin-bottom: 15px;">Select any allergens you'd like us to filter out of your ulam ideas.</p>
+            
+            <div class="allergen-grid">
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="milk"> Milk</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="eggs"> Eggs</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="peanuts"> Peanuts</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="tree-nuts"> Tree Nuts</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="wheat"> Wheat</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="soy"> Soy</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="fish"> Fish</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="shellfish"> Shellfish</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="sesame"> Sesame</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="celery"> Celery</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="mustard"> Mustard</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="lupin"> Lupin</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="molluscs"> Molluscs</label>
+                <label class="allergen-item"><input type="checkbox" name="allergen" value="sulphites"> Sulphites</label>
+            </div>
+
+            <button type="button" class="auth-btn" onclick="closeModal('signupModal')">Start Cooking</button>
+            <p class="auth-toggle"><a href="javascript:void(0)" onclick="prevStep()">Back to details</a></p>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-brand">THE FILIPINO PLATE</div>
+    <div class="footer-bottom">
+        <p>&copy; 2026 THE FILIPINO PLATE. ALL RIGHTS RESERVED.</p>
+    </div>
+</footer>
+
+<script>
+    function openModal(id) { document.getElementById(id).style.display = "flex"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') { event.target.style.display = "none"; }
+    }
+
+    function openModal(id) { 
+    document.getElementById(id).style.display = "flex"; }
+    
+    function closeModal(id) { 
+    document.getElementById(id).style.display = "none"; }
+    
+    function switchModal(currentId, nextId) {
+    closeModal(currentId);
+    openModal(nextId); }
+    
+    window.onclick = function(event) {
+    if (event.target.className === 'modal') {
+        event.target.style.display = "none";
+    } 
+    }
+</script>
+
+</body>
+</html>

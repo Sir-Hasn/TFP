@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | The Filipino Plate</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/about.css">
+    <link rel="stylesheet" href="/css/guest-home.css">
+</head>
+<body>
+    
+    <div class="header">
+        <div class="nav-left">
+            <a href="/html/guest-home.html" class="nav-item">Home</a>
+            <a href="/html/about.html" class="nav-item">About</a>
+    </div>
+    
+    <div class="logo">
+        <img src="/images/filipinologo (1).png" alt="The Filipino Plate Logo">
+    </div>
+    
+    <div class="nav-right">
+        <button class="nav-login" onclick="openModal('loginModal')">Log-In</button>
+        <button class="btn-signup" onclick="openModal('signupModal')">Sign Up</button>
+    </div>
+</div>
+
+    <section class="about-hero">
+        <div class="about-hero-text">
+            <h1>Our Story</h1>
+            <p>Bringing the heart of the Filipino kitchen to your daily table.</p>
+        </div>
+    </section>
+
+    <section class="about-content-wrapper">
+        <div class="about-content">
+            <div class="about-text-left">
+                <h2>Why we started The Filipino Plate</h2>
+                <p>
+                    We know the daily struggle of answering the question, <strong>"Anong ulam natin ngayon?"</strong> (What's our meal today?). 
+                    The Filipino Plate was born out of a desire to make meal planning simple, exciting, and deeply rooted in our rich culinary heritage.
+                </p>
+                <p>
+                    Whether you are craving the comforting warmth of a slow-cooked <em>Nilaga</em> on a rainy day, or the quick, savory punch of a <em>Ginisa</em> after a long day at work, we are here to guide you. We categorize dishes not just by ingredients, but by the cooking styles that define Filipino cuisine.
+                </p>
+                <h3>Our Mission</h3>
+                <p>
+                    To preserve authentic recipes, inspire modern home cooks, and ensure that no family has to settle for a repetitive meal plan. Discover, plan, and enjoy your daily ulam with us.
+                </p>
+            </div>
+            
+            <div class="about-image-right">
+                <img src="/images/homeee.png" alt="Cooking Filipino Food">
+            </div>
+        </div>
+    </section>
+
+<script>
+    function openModal(id) { document.getElementById(id).style.display = "flex"; }
+    function closeModal(id) { document.getElementById(id).style.display = "none"; }
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') { event.target.style.display = "none"; }
+    }
+
+    function openModal(id) { 
+    document.getElementById(id).style.display = "flex"; }
+    
+    function closeModal(id) { 
+    document.getElementById(id).style.display = "none"; }
+    
+    function switchModal(currentId, nextId) {
+    closeModal(currentId);
+    openModal(nextId); }
+    
+    window.onclick = function(event) {
+    if (event.target.className === 'modal') {
+        event.target.style.display = "none";
+    } 
+    }
+</script>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <h2 class="footer-brand">THE FILIPINO PLATE</h2>
+            <div class="footer-bottom">
+                <p>&copy; 2026 THE FILIPINO PLATE. ALL RIGHTS RESERVED.</p>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>s

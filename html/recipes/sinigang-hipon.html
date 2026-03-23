@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinigang na Hipon | The Filipino Plate</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/user-home.css">
+    <link rel="stylesheet" href="/css/detailed-recipe.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="nav-left">
+        <a href="/html/user-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+        <a href="/html/recipe-main-page.html" class="nav-item">Recipes</a>
+    </div>
+    <div class="logo"><img src="/images/filipinologo (1).png" alt="Logo"></div>
+    <div class="nav-right">
+        <button class="icon-btn ai-btn" onclick="openModal('aiModal')"><i class="fas fa-robot"></i></button>
+        <a href="#" class="icon-btn"><i class="fas fa-user-circle"></i></a>
+    </div>
+</div>
+
+<section class="recipe-hero">
+    <div class="recipe-hero-container">
+        <div class="recipe-main-img"><img src="/images/Sinigang na Hipon Slide.png" alt="Sinigang na Hipon"></div>
+        <div class="recipe-header-text">
+            <div class="header-actions">
+                <div class="allergen-alert">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span>High Allergen: Shellfish</span>
+                </div>
+                <button class="bookmark-btn" onclick="this.classList.toggle('active')"><i class="fa-solid fa-heart"></i></button>
+            </div>
+            <span class="category-tag">Seafood / Nilaga</span>
+            <h1>Sinigang na Hipon</h1>
+            <p>Fast, fresh, and savory. Large prawns simmered with vegetables in a sharp, citrusy tamarind broth.</p>
+            <div class="recipe-meta">
+                <div class="meta-item"><i class="fa-regular fa-clock"></i> <span>Prep: 10m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-fire-burner"></i> <span>Cook: 15m</span></div>
+                <div class="meta-item"><i class="fa-solid fa-utensils"></i> <span>Servings: 3-4</span></div>
+            </div>
+            <div class="variations-box">
+                <span>Other Sinigang styles:</span>
+                <div class="variation-links">
+                    <a href="/html/recipes/sinigang-baboy.html" class="v-btn">Sinigang na Baboy</a>
+                    <a href="/html/recipes/sinigang-bangus.html" class="v-btn">Sinigang na Bangus</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recipe-body">
+    <div class="recipe-grid-layout">
+        <div class="ingredients-side">
+            <h2>Ingredients</h2>
+            <ul>
+                <li>500g Large Shrimp or Prawns</li>
+                <li>1 pack Sinigang Mix</li>
+                <li>1 bunch String Beans (Sitaw)</li>
+                <li>1 small Radish, sliced</li>
+                <li>2 pieces Tomatoes</li>
+                <li>1 medium Onion</li>
+                <li>6 cups Water</li>
+            </ul>
+        </div>
+        <div class="instructions-side">
+            <h2>Instructions</h2>
+            <div class="step"><div class="step-num">1</div><p>Boil water with onions and tomatoes until they are soft.</p></div>
+            <div class="step"><div class="step-num">2</div><p>Add the radish and string beans. Cook for 3-4 minutes.</p></div>
+            <div class="step"><div class="step-num">3</div><p>Add the sinigang mix and stir until dissolved.</p></div>
+            <div class="step"><div class="step-num">4</div><p>Add the prawns. Cook for 3-5 minutes only until they turn orange (don't overcook!).</p></div>
+            <div class="step"><div class="step-num">5</div><p>Add kangkong if desired, cover, and serve immediately.</p></div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
