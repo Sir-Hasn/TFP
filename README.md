@@ -10,20 +10,7 @@ A Filipino recipe platform with authentication, role-based admin controls, recip
 npm install
 ```
 
-### 2. Configure environment
-
-Create a `.env` file in the project root:
-
-```env
-MONGODB_URI=mongodb://127.0.0.1:27017/filipino_plate
-JWT_SECRET=replace_with_a_long_random_secret
-GEMINI_API_KEY=replace_with_your_gemini_key
-ADMIN_USERNAME=admin
-ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=StrongPassword123
-```
-
-### 3. Start MongoDB
+### 2. Start MongoDB
 
 On Windows (service install):
 
@@ -31,7 +18,7 @@ On Windows (service install):
 net start MongoDB
 ```
 
-### 4. Run the app
+### 3. Run the app
 
 ```bash
 npm run start
@@ -43,7 +30,7 @@ For development with auto-restart:
 npm run dev
 ```
 
-### 5. Seed admin account (optional)
+### 4. Seed admin account (optional)
 
 ```bash
 npm run seed:admin
