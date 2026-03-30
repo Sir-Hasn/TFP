@@ -137,6 +137,42 @@ select {
 	margin-top: 10px;
 }
 
+.bookmark-btn {
+	width: 38px;
+	height: 38px;
+	border-radius: 10px;
+	border: 1px solid var(--border);
+	background: #f6efe2;
+	color: #6e4a32;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0;
+	transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.bookmark-btn:hover {
+	background: #eedfca;
+	color: #3c2415;
+	transform: translateY(-1px);
+}
+
+.bookmark-btn.is-bookmarked {
+	background: #3c2415;
+	border-color: #3c2415;
+	color: #f2e8d9;
+}
+
+.bookmark-btn.is-saving {
+	opacity: 0.7;
+	cursor: wait;
+}
+
+.bookmark-btn:disabled {
+	opacity: 0.8;
+	cursor: not-allowed;
+}
+
 .secondary-btn {
 	background: var(--accent-2);
 }

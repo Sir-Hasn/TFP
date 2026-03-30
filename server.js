@@ -16,6 +16,7 @@ import dotenv from "dotenv";
 // Use `net start MongoDB` to start the MongoDB service.
 // In MongoDB, data is stored in collections (similar to tables).
 
+// run $env:ADMIN_RESET_PASSWORD='true'; npm run seed:admin; Remove-Item Env:ADMIN_RESET_PASSWORD if you want to reset the admin password again in the future. This is a safety measure to prevent accidental password resets.
 // Press Ctrl + C to stop the server.
 // Run `node server.js` to start the server.
 //to cache something in git: git rm --cached "the file name"

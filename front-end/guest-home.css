@@ -73,6 +73,29 @@ body {
     cursor: pointer;
 }
 
+.icon-btn {
+    background-color: #5c3d2e;
+    color: #ddd9ce;
+    border: 2px solid #5c3d2e;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.icon-btn:hover {
+    background-color: transparent;
+    color: #ddd9ce;
+    border-color: #ddd9ce;
+    transform: translateY(-2px);
+}
+
 .hero-section {
     padding: 80px 10%;
     display: flex;

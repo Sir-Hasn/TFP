@@ -1,5 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 import { body, param, query } from "express-validator";
 import { verifyToken } from "../middleware/auth.middleware.js";
 import { requireAdmin } from "../middleware/roleCheck.middleware.js";
@@ -8,6 +9,7 @@ import { User } from "../models/user.models.js";
 import { AuditLog } from "../models/auditLog.models.js";
 import { Recipe } from "../models/recipe.models.js";
 import { buildUserSnapshot, writeAuditLog } from "../services/auditLog.services.js";
+import { sendPasswordChangedEmail } from "../services/email.services.js";
 
 const router = express.Router();
 
@@ -43,6 +45,11 @@ function normalizeIngredients(ingredients) {
     return ingredients
         .map((item) => normalizeString(item))
         .filter((item) => item.length > 0);
+}
+
+function isStrongPassword(value) {
+    const password = String(value || "");
+    return password.length >= 6 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password);
 }
 
 // Admin health check endpoint.
@@ -376,6 +383,122 @@ router.put(
     } catch (err) {
         console.error("Error updating user role:", err.message);
         return res.status(500).json({ message: "Error updating user role", error: err.message });
+    }
+});
+
+// Update a user's profile details (username, email, password).
+router.put(
+    "/users/:id/profile",
+    verifyToken,
+    requireAdmin,
+    validateRequest([
+        param("id").isMongoId().withMessage("Invalid user id"),
+        body("username").optional().isString().withMessage("username must be a string"),
+        body("email").optional().isEmail().withMessage("Invalid email format"),
+        body("password").optional().isString().withMessage("password must be a string")
+    ]),
+    async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        if (!isValidObjectId(id)) {
+            return res.status(400).json({ message: "Invalid user id" });
+        }
+
+        const targetUser = await User.findById(id);
+        if (!targetUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const hasUsername = Object.prototype.hasOwnProperty.call(req.body, "username");
+        const hasEmail = Object.prototype.hasOwnProperty.call(req.body, "email");
+        const hasPassword = Object.prototype.hasOwnProperty.call(req.body, "password") && normalizeString(req.body.password).length > 0;
+
+        if (!hasUsername && !hasEmail && !hasPassword) {
+            return res.status(400).json({ message: "Provide at least one field to update" });
+        }
+
+        const nextUsername = hasUsername ? normalizeString(req.body.username) : targetUser.username;
+        const nextEmail = hasEmail ? normalizeString(req.body.email).toLowerCase() : targetUser.email;
+
+        if (!nextUsername) {
+            return res.status(400).json({ message: "Username cannot be empty" });
+        }
+
+        if (!nextEmail) {
+            return res.status(400).json({ message: "Email cannot be empty" });
+        }
+
+        if (hasPassword && !isStrongPassword(req.body.password)) {
+            return res.status(400).json({ message: "Password must be at least 6 characters long and contain uppercase, lowercase, and a number" });
+        }
+
+        const usernameTaken = await User.findOne({ username: nextUsername, _id: { $ne: targetUser._id } }).select("_id");
+        if (usernameTaken) {
+            return res.status(409).json({ message: "Username already in use" });
+        }
+
+        const emailTaken = await User.findOne({ email: nextEmail, _id: { $ne: targetUser._id } }).select("_id");
+        if (emailTaken) {
+            return res.status(409).json({ message: "Email already in use" });
+        }
+
+        const before = buildUserSnapshot(targetUser);
+
+        targetUser.username = nextUsername;
+        targetUser.email = nextEmail;
+
+        if (hasPassword) {
+            targetUser.password = await bcrypt.hash(String(req.body.password), 10);
+        }
+
+        const updatedUser = await targetUser.save();
+
+        await writeAuditLog({
+            actorUser: req.user,
+            action: "user_profile_updated",
+            targetModel: "User",
+            targetId: updatedUser._id,
+            targetSummary: {
+                username: updatedUser.username,
+                email: updatedUser.email
+            },
+            before,
+            after: buildUserSnapshot(updatedUser)
+        });
+
+        let notificationMessage = "";
+        if (hasPassword) {
+            try {
+                const result = await sendPasswordChangedEmail({
+                    userEmail: updatedUser.email,
+                    userName: updatedUser.username,
+                    changedAt: new Date(),
+                    actorEmail: req.user?.email
+                });
+
+                if (!result.sent) {
+                    notificationMessage = " Password updated but email notification is not configured.";
+                }
+            } catch (mailErr) {
+                console.error("Error sending password-change email:", mailErr.message);
+                notificationMessage = " Password updated but email notification failed to send.";
+            }
+        }
+
+        return res.json({
+            message: `User profile updated.${notificationMessage}`,
+            user: {
+                _id: updatedUser._id,
+                username: updatedUser.username,
+                email: updatedUser.email,
+                role: updatedUser.role,
+                status: updatedUser.status
+            }
+        });
+    } catch (err) {
+        console.error("Error updating user profile:", err.message);
+        return res.status(500).json({ message: "Error updating user profile", error: err.message });
     }
 });
 

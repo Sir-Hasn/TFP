@@ -104,6 +104,15 @@ function renderUsers(users) {
         <article class="card">
             <h3>${escapeHtml(user.username)}</h3>
             <p>${escapeHtml(user.email)}</p>
+            <label>Username
+                <input type="text" data-username-input="${escapeHtml(user._id)}" value="${escapeHtml(user.username || "")}" autocomplete="off">
+            </label>
+            <label>Email
+                <input type="email" data-email-input="${escapeHtml(user._id)}" value="${escapeHtml(user.email || "")}" autocomplete="off">
+            </label>
+            <label>New Password (optional)
+                <input type="password" data-password-input="${escapeHtml(user._id)}" placeholder="Leave blank to keep current password" autocomplete="new-password">
+            </label>
             <label>Role
                 <select data-role-select="${escapeHtml(user._id)}">
                     <option value="user" ${user.role === "user" ? "selected" : ""}>user</option>
@@ -119,6 +128,9 @@ function renderUsers(users) {
             <div class="card-actions">
                 <button type="button" data-action="save-user" data-id="${escapeHtml(user._id)}">Save</button>
                 <button type="button" data-action="delete-user" data-id="${escapeHtml(user._id)}">Delete</button>
+                <div class="loading-spinner" data-loading-spinner="${escapeHtml(user._id)}" style="display: none;">
+                    <span class="spinner"></span> Sending email...
+                </div>
             </div>
         </article>
     `).join("");
@@ -205,8 +217,34 @@ async function deleteRecipe(recipeId) {
 
 async function saveUserChanges(userId) {
     try {
+        const usernameInput = document.querySelector(`[data-username-input='${userId}']`);
+        const emailInput = document.querySelector(`[data-email-input='${userId}']`);
+        const passwordInput = document.querySelector(`[data-password-input='${userId}']`);
         const role = document.querySelector(`[data-role-select='${userId}']`).value;
         const status = document.querySelector(`[data-status-select='${userId}']`).value;
+        const loadingSpinner = document.querySelector(`[data-loading-spinner='${userId}']`);
+        const saveButton = document.querySelector(`[data-action='save-user'][data-id='${userId}']`);
+
+        // Show loading spinner only if password is being changed
+        const hasPassword = passwordInput && passwordInput.value.trim();
+        if (hasPassword && loadingSpinner) {
+            loadingSpinner.style.display = "flex";
+            saveButton.disabled = true;
+        }
+
+        const profilePayload = {
+            username: usernameInput ? usernameInput.value.trim() : "",
+            email: emailInput ? emailInput.value.trim() : ""
+        };
+
+        if (passwordInput && passwordInput.value.trim()) {
+            profilePayload.password = passwordInput.value;
+        }
+
+        await apiRequest(`/admin/users/${userId}/profile`, {
+            method: "PUT",
+            body: JSON.stringify(profilePayload)
+        });
 
         await apiRequest(`/admin/users/${userId}/role`, {
             method: "PUT",
@@ -221,6 +259,16 @@ async function saveUserChanges(userId) {
         await Promise.all([refreshUsers(), refreshLogs()]);
     } catch (err) {
         alert(err.message);
+    } finally {
+        // Hide loading spinner
+        const loadingSpinner = document.querySelector(`[data-loading-spinner='${userId}']`);
+        const saveButton = document.querySelector(`[data-action='save-user'][data-id='${userId}']`);
+        if (loadingSpinner) {
+            loadingSpinner.style.display = "none";
+        }
+        if (saveButton) {
+            saveButton.disabled = false;
+        }
     }
 }
 

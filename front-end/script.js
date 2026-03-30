@@ -67,6 +67,222 @@ function escapeHtml(value) {
 }
 
 let latestRenderedRecipes = [];
+let bookmarkedRecipeIds = new Set();
+let bookmarkIdByRecipeId = new Map();
+
+function getAuthToken() {
+    return localStorage.getItem("token") || "";
+}
+
+async function hasValidUserSession() {
+    const token = getAuthToken();
+    if (!token) {
+        return false;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/auth/me`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            localStorage.removeItem("token");
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
+function normalizeRecipeId(recipe) {
+    const rawId = recipe && (recipe.recipe_id || recipe.id || recipe._id);
+    if (rawId) {
+        return String(rawId);
+    }
+
+    return String(recipe && recipe.title ? recipe.title : "unknown")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-");
+}
+
+function setRecipeMetaMessage(message, isError = false) {
+    const meta = document.getElementById("recipe-search-meta");
+    if (!meta) {
+        return;
+    }
+
+    meta.textContent = message;
+    meta.style.color = isError ? "#8b1e1e" : "";
+}
+
+async function fetchUserBookmarks() {
+    const token = getAuthToken();
+    if (!token) {
+        return [];
+    }
+
+    const response = await fetch(`${API_BASE_URL}/bookmarks`, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to load bookmarks");
+    }
+
+    return Array.isArray(data.bookmarks) ? data.bookmarks : [];
+}
+
+async function addRecipeBookmark(recipe) {
+    const token = getAuthToken();
+    if (!token) {
+        throw new Error("Please log in to bookmark recipes.");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/bookmarks/add`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+            recipe_id: normalizeRecipeId(recipe),
+            recipe_name: recipe.title || "Untitled recipe",
+            recipe_image: recipe.image || "",
+            cooking_method: recipe.instructions || ""
+        })
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to save bookmark");
+    }
+
+    return data;
+}
+
+async function removeRecipeBookmark(bookmarkId) {
+    const token = getAuthToken();
+    if (!token) {
+        throw new Error("Please log in to manage bookmarks.");
+    }
+
+    const response = await fetch(`${API_BASE_URL}/bookmarks/${bookmarkId}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    });
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) {
+        throw new Error(data.message || "Failed to remove bookmark");
+    }
+
+    return data;
+}
+
+function updateBookmarkButtonState(button, isBookmarked) {
+    if (!button) {
+        return;
+    }
+
+    const icon = button.querySelector("i");
+    button.classList.toggle("is-bookmarked", isBookmarked);
+    button.setAttribute("aria-pressed", isBookmarked ? "true" : "false");
+    button.title = isBookmarked ? "Bookmarked" : "Save to bookmarks";
+
+    if (icon) {
+        icon.className = `${isBookmarked ? "fas" : "far"} fa-bookmark`;
+    }
+}
+
+async function loadBookmarkedRecipeIds() {
+    try {
+        const bookmarks = await fetchUserBookmarks();
+        bookmarkIdByRecipeId = new Map(
+            bookmarks
+                .filter((item) => item && item.recipe_id && item._id)
+                .map((item) => [String(item.recipe_id).trim(), String(item._id).trim()])
+        );
+        bookmarkedRecipeIds = new Set(
+            bookmarks
+                .map((item) => String(item.recipe_id || "").trim())
+                .filter((item) => item.length > 0)
+        );
+    } catch (error) {
+        bookmarkIdByRecipeId = new Map();
+        bookmarkedRecipeIds = new Set();
+    }
+}
+
+async function handleBookmarkByIndex(index, button) {
+    const recipe = latestRenderedRecipes[index];
+    if (!recipe || !button) {
+        return;
+    }
+
+    const recipeId = normalizeRecipeId(recipe);
+    if (bookmarkedRecipeIds.has(recipeId)) {
+        const bookmarkId = bookmarkIdByRecipeId.get(recipeId);
+        if (!bookmarkId) {
+            setRecipeMetaMessage("Bookmark reference not found. Refreshing bookmarks...", true);
+            await loadBookmarkedRecipeIds();
+        }
+
+        const resolvedBookmarkId = bookmarkIdByRecipeId.get(recipeId);
+        if (!resolvedBookmarkId) {
+            setRecipeMetaMessage("Could not remove bookmark. Please refresh and try again.", true);
+            updateBookmarkButtonState(button, true);
+            return;
+        }
+
+        button.disabled = true;
+        button.classList.add("is-saving");
+
+        try {
+            await removeRecipeBookmark(resolvedBookmarkId);
+            bookmarkedRecipeIds.delete(recipeId);
+            bookmarkIdByRecipeId.delete(recipeId);
+            updateBookmarkButtonState(button, false);
+            setRecipeMetaMessage(`Removed '${recipe.title || "Recipe"}' from bookmarks.`);
+        } catch (error) {
+            setRecipeMetaMessage(error.message || "Could not remove bookmark.", true);
+            updateBookmarkButtonState(button, true);
+        } finally {
+            button.disabled = false;
+            button.classList.remove("is-saving");
+        }
+
+        return;
+    }
+
+    button.disabled = true;
+    button.classList.add("is-saving");
+
+    try {
+        const result = await addRecipeBookmark(recipe);
+        const bookmark = result && result.bookmark ? result.bookmark : null;
+        bookmarkedRecipeIds.add(recipeId);
+        if (bookmark && bookmark._id) {
+            bookmarkIdByRecipeId.set(recipeId, String(bookmark._id));
+        }
+        updateBookmarkButtonState(button, true);
+        setRecipeMetaMessage(`Saved '${recipe.title || "Recipe"}' to bookmarks.`);
+    } catch (error) {
+        setRecipeMetaMessage(error.message || "Could not save bookmark.", true);
+    } finally {
+        button.disabled = false;
+        button.classList.remove("is-saving");
+    }
+}
 
 function getSourceLabel(recipe) {
     return recipe.source === "admin" ? "Admin Recipe" : "Panlasang Pinoy";
@@ -135,12 +351,15 @@ function renderRecipes(recipes) {
 
     container.innerHTML = latestRenderedRecipes.map((recipe, index) => {
         const sourceLabel = getSourceLabel(recipe);
+        const recipeId = normalizeRecipeId(recipe);
+        const isBookmarked = bookmarkedRecipeIds.has(recipeId);
         const imageTag = recipe.image
             ? `<img src="${escapeHtml(recipe.image)}" alt="${escapeHtml(recipe.title)}" class="recipe-image">`
             : "";
         const sourceLink = recipe.link
             ? `<a class="button-link secondary-btn" href="${escapeHtml(recipe.link)}" target="_blank" rel="noopener noreferrer">Open source</a>`
             : "";
+        const bookmarkIconClass = isBookmarked ? "fas" : "far";
 
         return `
             <article class="card recipe-card">
@@ -150,6 +369,16 @@ function renderRecipes(recipes) {
                 <p>${escapeHtml(recipe.description || "No description")}</p>
                 <div class="card-actions">
                     <button type="button" class="view-details-btn" data-index="${index}">View details</button>
+                    <button
+                        type="button"
+                        class="bookmark-btn ${isBookmarked ? "is-bookmarked" : ""}"
+                        data-index="${index}"
+                        title="${isBookmarked ? "Bookmarked" : "Save to bookmarks"}"
+                        aria-label="Save recipe to bookmarks"
+                        aria-pressed="${isBookmarked ? "true" : "false"}"
+                    >
+                        <i class="${bookmarkIconClass} fa-bookmark" aria-hidden="true"></i>
+                    </button>
                     ${sourceLink}
                 </div>
             </article>
@@ -220,15 +449,15 @@ async function runSearch(query = "") {
         return;
     }
 
-    meta.textContent = "Loading recipes...";
+    setRecipeMetaMessage("Loading recipes...");
     renderRecipeLoading();
 
     try {
         const result = await fetchRecipes(query);
         renderRecipes(result.recipes || []);
-        meta.textContent = `${result.count || 0} recipes shown for '${result.query || "all"}'.`;
+        setRecipeMetaMessage(`${result.count || 0} recipes shown for '${result.query || "all"}'.`);
     } catch (err) {
-        meta.textContent = err.message;
+        setRecipeMetaMessage(err.message, true);
         const list = document.getElementById("recipe-list");
         if (list) {
             list.innerHTML = "";
@@ -241,9 +470,18 @@ function initRecipeSearch() {
     const recipeList = document.getElementById("recipe-list");
 
     if (recipeList) {
-        recipeList.addEventListener("click", (event) => {
+        recipeList.addEventListener("click", async (event) => {
             const target = event.target;
             if (!(target instanceof HTMLElement)) {
+                return;
+            }
+
+            const bookmarkButton = target.closest(".bookmark-btn");
+            if (bookmarkButton) {
+                const index = Number.parseInt(bookmarkButton.getAttribute("data-index") || "-1", 10);
+                if (!Number.isNaN(index) && index >= 0) {
+                    await handleBookmarkByIndex(index, bookmarkButton);
+                }
                 return;
             }
 
@@ -270,7 +508,9 @@ function initRecipeSearch() {
         runSearch(query);
     });
 
-    runSearch("");
+    loadBookmarkedRecipeIds().finally(() => {
+        runSearch("");
+    });
 }
 
 function setAuthMessage(message, isError = true) {
@@ -449,7 +689,7 @@ async function handleSignupSubmit(event) {
             localStorage.setItem("token", data.token);
         }
         setAuthMessage("Sign up successful. Redirecting...", false);
-        window.location.href = "index.html";
+        window.location.href = "user-home.html";
     } catch (error) {
         setAuthMessage(toFriendlyAuthError(error, "We could not create your account right now. Please try again."));
     } finally {
@@ -501,5 +741,32 @@ function initGuestAuth() {
     }
 }
 
+async function initAboutHeaderAuthState() {
+    const authActions = document.getElementById("about-auth-actions");
+    const homeLink = document.getElementById("about-home-link");
+
+    if (!authActions || !homeLink) {
+        return;
+    }
+
+    const isLoggedIn = await hasValidUserSession();
+    homeLink.href = isLoggedIn ? "user-home.html" : "guest-home.html";
+
+    if (!isLoggedIn) {
+        return;
+    }
+
+    authActions.innerHTML = `
+        <button class="icon-btn ai-btn" title="AI Kitchen Assistant" onclick="openModal('aiModal')">
+            <i class="fas fa-robot"></i>
+        </button>
+
+        <a href="#" class="icon-btn profile-link" title="My Profile">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    `;
+}
+
 initRecipeSearch();
 initGuestAuth();
+initAboutHeaderAuthState();
