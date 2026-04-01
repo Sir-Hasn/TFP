@@ -20,6 +20,14 @@
             <a href="about.html" class="nav-item active">About</a>
     </div>
 
+    <div class="logo-text">THE FILIPINO PLATE</div>
+
+    <div class="nav-right" id="about-auth-actions">
+        <button class="nav-login" onclick="openModal('loginModal')">Log-In</button>
+        <button class="btn-signup" onclick="openModal('signupModal')">Sign Up</button>
+    </div>
+</div>
+
     <div id="loginModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal('loginModal')">&times;</span>
@@ -47,14 +55,6 @@
         </form>
         <p id="signup-message" class="auth-message" role="status" aria-live="polite"></p>
         <p class="auth-toggle">Already have an account? <a href="javascript:void(0)" onclick="switchModal('signupModal', 'loginModal')">Log In</a></p>
-    </div>
-</div>
-    
- <div class="logo-text">THE FILIPINO PLATE</div>
-    
-    <div class="nav-right" id="about-auth-actions">
-        <button class="nav-login" onclick="openModal('loginModal')">Log-In</button>
-        <button class="btn-signup" onclick="openModal('signupModal')">Sign Up</button>
     </div>
 </div>
 
