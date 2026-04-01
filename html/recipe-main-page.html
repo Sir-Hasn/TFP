@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipes | The Filipino Plate</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/user-home.css">
+    <link rel="stylesheet" href="/css/recipe-main-page.css">
+</head>
+<body>
+
+<div class="header">
+    <div class="nav-left">
+        <a href="/html/user-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+        <a href="/html/recipe-main-page.html" class="nav-item">Recipes</a>
+    </div>
+
+    <div class="logo">
+        <img src="/images/filipinologo (1).png" alt="The Filipino Plate Logo">
+    </div>
+
+    <div class="nav-right">
+
+        <button class="icon-btn ai-btn" title="AI Kitchen Assistant" onclick="openModal('aiModal')">
+            <i class="fas fa-robot"></i>
+        </button>
+
+        <a href="#" class="icon-btn profile-link" title="My Profile">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </div>
+
+</div>
+
+<section class="search-section">
+    <div class="search-bar">
+        <select class="filter-dropdown" aria-label="Filter by Cooking Method">
+            <option value="" disabled selected>Cooking Method</option>
+            <option value="ginisa"> Nilaga </option>
+            <option value="ginisa"> Paksiw </option>
+            <option value="ginisa"> Ginataan </option>
+            <option value="nilaga"> Prito </option>
+            <option value="prito"> Inihaw/Lechon </option>
+            <option value="steam"> Ginisa </option>
+            <option value="roast"> Kinilaw </option>
+            <option value="roast"> Kinilaw </option>
+        </select>
+
+        <div class="divider"></div>
+
+        <select class="filter-dropdown" aria-label="Filter by Allergens">
+            <option value="" disabled selected>Allergens</option>
+            <option value="milk">Milk-Free</option>
+            <option value="eggs">Egg-Free</option>
+            <option value="peanuts">Peanut-Free</option>
+            <option value="tree-nuts">Tree Nut-Free</option>
+            <option value="wheat">Wheat-Free</option>
+            <option value="soy">Soy-Free</option>
+            <option value="fish">Fish-Free</option>
+            <option value="shellfish">Shellfish-Free</option>
+            <option value="sesame">Sesame-Free</option>
+            <option value="celery">Celery-Free</option>
+            <option value="mustard">Mustard-Free</option>
+            <option value="lupin">Lupin-Free</option>
+            <option value="molluscs">Mollusc-Free</option>
+            <option value="sulphites">Sulphite-Free</option>
+        </select>
+        
+        <div class="divider"></div>
+        
+        <input type="text" class="search-input" placeholder="Search dish name...">
+    </div>
+</section>
+
+<section class="recipes-container">
+    <div class="recipe-grid">
+        <a href="/html/recipes/adobongmanok.html" class="recipe-card">
+            <img src="/images/Adobo.jpg" alt="Adobo">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Adobo</h3>
+                <span class="prep-time">Prep. Time: Varies</span>
+            </div>
+        </a>
+
+         <a href="/html/recipes/sinigang-baboy.html" class="recipe-card">
+            <img src="/images/Sinigang.png" alt="Sinigang">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Sinigang</h3>
+                <span class="prep-time">Prep. Time: Varies</span>
+            </div>
+        </a>
+
+        <a href="menudo.html" class="recipe-card">
+            <img src="/images/Menudo.png" alt="Menudo">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Menudo</h3>
+                <span class="prep-time">Prep. Time: 20m</span>
+            </div>
+        </a>
+
+        <a href="tinola.html" class="recipe-card">
+            <img src="/images/Tinola.jpg" alt="Tinola">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Tinola</h3>
+                <span class="prep-time">Prep. Time: 15m</span>
+            </div>
+        </a>
+
+        <a href="sisig.html" class="recipe-card">
+            <img src="/images/Sisig-2.jpg" alt="Sisig">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Sisig</h3>
+                <span class="prep-time">Prep. Time: Varies</span>
+            </div>
+        </a>
+
+        <a href="nilagangbaboy.html" class="recipe-card">
+            <img src="/images/nilagangbaboy.jpg" alt="Nilagang Baboy">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Nilagang Baboy</h3>
+                <span class="prep-time">Prep. Time: 15m</span>
+            </div>
+        </a>
+
+        <a href="caldereta.html" class="recipe-card">
+            <img src="/images/caldereta.jpg" alt="Caldereta">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Caldereta</h3>
+                <span class="prep-time">Prep. Time: 25m</span>
+            </div>
+        </a>
+
+        <a href="fried-chicken.html" class="recipe-card">
+            <img src="/images/friedchicken.jpg" alt="Fried Chicken">
+            <div class="recipe-overlay"></div>
+            <div class="recipe-info">
+                <h3>Fried Chicken</h3>
+                <span class="prep-time">Prep. Time: 15m</span>
+            </div>
+        </a>
+
+    </div>
+
+</section>
+
+<footer class="footer">
+    <div class="footer-content">
+        <h2 class="footer-brand">THE FILIPINO PLATE</h2>
+        <div class="footer-bottom">
+            <p>&copy; 2026 THE FILIPINO PLATE. ALL RIGHTS RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

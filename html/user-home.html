@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE FILIPINO PLATE</title>
+     <link rel="icon" type="image/jpg" href="/images/favicon.png">
+     <link rel="stylesheet" href="/css/user-home.css">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+
+<body>
+<div class="header">
+    <div class="nav-left">
+        <a href="/html/user-home.html" class="nav-item">Home</a>
+        <a href="/html/about.html" class="nav-item">About</a>
+        <a href="/html/recipe-main-page.html" class="nav-item">Recipes</a>
+    </div>
+
+    <div class="logo">
+        <img src="/images/filipinologo (1).png" alt="The Filipino Plate Logo">
+    </div>
+
+    <div class="nav-right">
+
+        <button class="icon-btn ai-btn" title="AI Kitchen Assistant" onclick="openModal('aiModal')">
+            <i class="fas fa-robot"></i>
+        </button>
+
+        <a href="#" class="icon-btn profile-link" title="My Profile">
+            <i class="fas fa-user-circle"></i>
+        </a>
+    </div>
+
+</div>
+
+<section class="hero">
+    <div class="hero">
+        <div class="hero-left">
+            <h1>Your daily ulam, made simple.</h1>
+            <h3>Discover. Plan. Enjoy.</h3>
+            <p>
+                Say goodbye to repetitive meals, hello to flavor. Discover a world of Filipino dishes that keep your table exciting every day.
+                Fresh ideas, endless variety, and a smarter way to plan your ulam.
+            </p>
+        </div>
+
+        <div class="hero-right">
+            <img src="/images/user-home.png" alt="Ulam">
+        </div>
+
+    </div>
+
+</section>
+
+<section class="container">
+    <div class="recipes-intro">
+        <h1>Recipes</h1>
+        <p>Get inspired with dishes that bring fresh flavor to your table.
+            Our featured picks are here to spark ideas, keep meals exciting, and make every day feel a little more special.</p>
+    </div>
+
+    <div class="slider-wrapper">
+        <div class="slider">
+            <img id="slide-1" src="/images/Adobong Manok Slide.png" alt="Adobong Manok">
+            <img id="slide-2" src="/images/Beef Sinigang Slide.png" alt="Beef Sinigang">
+            <img id="slide-3" src="/images/Bistek Slide.png" alt="Bistek">
+            <img id="slide-4" src="/images/Caldereta Slide.png" alt="Caldereta">
+            <img id="slide-5" src="/images/Lumpiang Shanghai Slide.png" alt="Lumpiang Shanghai">
+            <img id="slide-6" src="/images/Menudo  Slide.png" alt="Menudo">
+            <img id="slide-7" src="/images/Munggo Slide.png" alt="Monggo">
+            <img id="slide-8" src="/images/Nilagang Baboy Slide.png" alt="Nilagang Baboy">
+            <img id="slide-9" src="/images/Pinakbet Slide.png" alt="Pinakbet">
+        </div>
+
+        <div class="slider-nav">
+            <a href="#slide-1"></a>
+            <a href="#slide-2"></a>
+            <a href="#slide-3"></a>
+            <a href="#slide-4"></a>
+            <a href="#slide-5"></a>
+            <a href="#slide-6"></a>
+            <a href="#slide-7"></a>
+            <a href="#slide-8"></a>
+            <a href="#slide-9"></a>
+        </div>
+    </div>
+
+    <div class="explore-container">
+        <a href="#" class="explore-btn">Explore Recipes</a>
+    </div>
+
+</section>
+
+<section class="container categories-section">
+    <div class="categories-intro">
+        <h1>Cooking Method</h1>
+        <p>Explore meals through cooking styles that make Filipino food so diverse.
+            From the comfort of nilaga to the quick flavor of ginisa, categories help you find dishes that match your mood and taste.</p>
+    </div>
+
+    <div class="slider-wrapper">
+        <div class="slider">
+            <img id="cat-slide-1" src="/images/Steam Slide.png" alt="Steam">
+            <img id="cat-slide-2" src="/images/Prito Slide.png" alt="Prito">
+            <img id="cat-slide-3" src="/images/Nilaga Slide.png" alt="Nilaga">
+            <img id="cat-slide-4" src="/images/Ginisa Slide.png" alt="Ginisa">
+            <img id="cat-slide-5" src="/images/Roasting Slide.png" alt="Roasting">
+        </div>
+    </div>
+
+    <div class="explore-container">
+        <a href="#" class="explore-btn">See All Categories</a>
+    </div>
+
+</section>
+
+<script>
+    function openModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) { modal.style.display = "flex"; }
+    }
+
+    function closeModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) { modal.style.display = "none"; }
+    }
+    
+    window.onclick = function(event) {
+        if (event.target.className === 'modal') {
+            event.target.style.display = "none";
+        }
+    }
+</script>
+
+<footer class="footer">
+    <div class="footer-content">
+        <h1 class="footer-brand">THE FILIPINO PLATE</h1>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 THE FILIPINO PLATE. ALL RIGHTS RESERVED.</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+
+</html> 
