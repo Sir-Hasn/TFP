@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap');
+
 :root {
 	--bg: #ddd9ce;
 	--surface: #e8e3d8;
@@ -5,11 +7,11 @@
 	--text: #3c2415;
 	--muted: #5a4639;
 	--accent: #3c2415;
-	--accent-2: #6e4a32;
+	--accent-2: #5c3d2e;
 	--danger: #7a1d1d;
-	--border: #cfc6b7;
+	--border: #b9ac9b;
 	--radius: 14px;
-	--shadow: 0 12px 30px rgba(60, 36, 21, 0.15);
+	--shadow: 0 8px 22px rgba(60, 36, 21, 0.12);
 }
 
 * {
@@ -19,8 +21,8 @@
 body {
 	margin: 0;
 	color: var(--text);
-	background: radial-gradient(circle at top right, #f0e9dc 0, #ddd9ce 45%, #cfc6b7 100%);
-	font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+	background-color: var(--bg);
+	font-family: 'Poppins', sans-serif;
 }
 
 .site-shell,
@@ -40,6 +42,16 @@ body {
 	margin-bottom: 16px;
 }
 
+.admin-header {
+	background: var(--accent);
+	color: var(--bg);
+	border: 1px solid var(--accent);
+	border-radius: var(--radius);
+	padding: 22px;
+	margin-bottom: 16px;
+	box-shadow: var(--shadow);
+}
+
 .hero h1,
 .admin-header h1 {
 	margin: 0 0 8px;
@@ -50,6 +62,10 @@ body {
 .admin-header p,
 .status-message {
 	color: var(--muted);
+}
+
+.admin-header p {
+	color: rgba(221, 217, 206, 0.92);
 }
 
 .hero-actions,
@@ -75,19 +91,22 @@ body {
 
 button,
 .button-link {
-	border: 0;
-	border-radius: 10px;
+	border: 2px solid var(--accent);
+	border-radius: 999px;
 	background: var(--accent);
-	color: #fff;
+	color: var(--bg);
 	padding: 10px 14px;
-	font-weight: 600;
+	font-family: 'Poppins', sans-serif;
+	font-weight: 700;
 	cursor: pointer;
 	text-decoration: none;
+	transition: all 0.25s ease;
 }
 
 button:hover,
 .button-link:hover {
-	filter: brightness(0.94);
+	background: transparent;
+	color: var(--accent);
 }
 
 input,
@@ -95,10 +114,11 @@ textarea,
 select {
 	width: 100%;
 	padding: 10px;
-	border: 1px solid var(--border);
+	border: 1px solid var(--accent);
 	border-radius: 10px;
-	background: var(--surface-strong);
+	background: transparent;
 	color: var(--text);
+	font-family: 'Poppins', sans-serif;
 }
 
 .form-grid {
