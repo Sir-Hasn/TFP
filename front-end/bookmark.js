@@ -114,6 +114,36 @@ async function fetchRecipes(query = "", limit = 10, page = 1) {
     return data;
 }
 
+function isAiBookmark(bookmark) {
+    const source = String(bookmark?.source || "").trim().toLowerCase();
+    const recipeId = String(bookmark?.recipe_id || "").trim().toLowerCase();
+    return source === "ai" || recipeId.startsWith("ai-");
+}
+
+function getBookmarkSourceLabel(bookmark) {
+    if (isAiBookmark(bookmark)) {
+        return "AI Kitchen Assistant";
+    }
+
+    return "Panlasang Pinoy";
+}
+
+function buildDetailFromBookmark(bookmark) {
+    const title = String(bookmark?.recipe_name || "Recipe").trim() || "Recipe";
+    const ingredients = Array.isArray(bookmark?.ingredients)
+        ? bookmark.ingredients.map((item) => String(item || "").trim()).filter(Boolean)
+        : [];
+
+    return {
+        title,
+        source: isAiBookmark(bookmark) ? "ai" : "bookmark",
+        description: String(bookmark?.description || "").trim() || "Saved recipe from your bookmark list.",
+        ingredients,
+        instructions: String(bookmark?.instructions || "").trim(),
+        link: String(bookmark?.link || "").trim()
+    };
+}
+
 function formatIngredients(ingredients) {
     if (!Array.isArray(ingredients) || ingredients.length === 0) {
         return ["No ingredients provided."];
@@ -172,6 +202,10 @@ async function addCookingHistoryEntry(recipe) {
 }
 
 async function resolveRecipeDetail(bookmark) {
+    if (isAiBookmark(bookmark)) {
+        return buildDetailFromBookmark(bookmark);
+    }
+
     try {
         const result = await fetchRecipes(bookmark.recipe_name || "", 12, 1);
         const recipes = Array.isArray(result.recipes) ? result.recipes : [];
@@ -209,7 +243,13 @@ function showRecipeDetails(recipe, fallbackBookmark) {
     };
 
     title.textContent = displayRecipe.title || fallbackBookmark?.recipe_name || "Recipe";
-    source.textContent = displayRecipe.source === "admin" ? "Admin Recipe" : "Panlasang Pinoy";
+    if (displayRecipe.source === "ai") {
+        source.textContent = "AI Kitchen Assistant";
+    } else if (displayRecipe.source === "admin") {
+        source.textContent = "Admin Recipe";
+    } else {
+        source.textContent = "Panlasang Pinoy";
+    }
     description.textContent = displayRecipe.description || "No description available.";
 
     ingredients.innerHTML = formatIngredients(displayRecipe.ingredients)
@@ -305,14 +345,15 @@ function renderBookmarks(bookmarks) {
             const name = escapeHtml(bookmark.recipe_name || "Untitled recipe");
             const image = bookmark.recipe_image ? escapeHtml(bookmark.recipe_image) : getFallbackImage(bookmark.recipe_name);
             const method = escapeHtml(toTitleCase(inferCookingMethodFromRecipe(bookmark)));
-            const fallbackDescription = escapeHtml("Saved recipe from your bookmark list.");
+            const sourceLabel = escapeHtml(getBookmarkSourceLabel(bookmark));
+            const fallbackDescription = escapeHtml(String(bookmark.description || "Saved recipe from your bookmark list."));
 
             return `
                 <article class="bookmark-card" data-id="${id}">
                     <img src="${image}" alt="${name}" loading="lazy" decoding="async">
                     <div class="bookmark-body">
                         <h3>${name}</h3>
-                        <p class="source-pill">Panlasang Pinoy</p>
+                        <p class="source-pill">${sourceLabel}</p>
                         <p class="bookmark-description">${fallbackDescription}</p>
                         <span class="method-chip">${method}</span>
                         <div class="card-actions">

@@ -6,6 +6,11 @@ const Bookmark = mongoose.model("Bookmark", new mongoose.Schema({
         recipe_name: { type: String, required: true },
         recipe_image: String,
         cooking_method: String,
+        source: String,
+        description: String,
+        ingredients: [String],
+        instructions: String,
+        link: String,
         bookmarked_at: { type: Date, default: Date.now }
     }));
 export { Bookmark };

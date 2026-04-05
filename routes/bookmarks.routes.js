@@ -14,11 +14,17 @@ router.post(
         body("recipe_id").trim().notEmpty().withMessage("recipe_id is required"),
         body("recipe_name").trim().notEmpty().withMessage("recipe_name is required"),
         body("recipe_image").optional({ values: "falsy" }).isString().withMessage("recipe_image must be a string"),
-        body("cooking_method").optional({ values: "falsy" }).isString().withMessage("cooking_method must be a string")
+        body("cooking_method").optional({ values: "falsy" }).isString().withMessage("cooking_method must be a string"),
+        body("source").optional({ values: "falsy" }).isString().withMessage("source must be a string"),
+        body("description").optional({ values: "falsy" }).isString().withMessage("description must be a string"),
+        body("ingredients").optional().isArray().withMessage("ingredients must be an array"),
+        body("ingredients.*").optional({ values: "falsy" }).isString().withMessage("each ingredient must be a string"),
+        body("instructions").optional({ values: "falsy" }).isString().withMessage("instructions must be a string"),
+        body("link").optional({ values: "falsy" }).isString().withMessage("link must be a string")
     ]),
     async (req, res) => {
     try {
-        const { recipe_id, recipe_name, recipe_image, cooking_method } = req.body;
+        const { recipe_id, recipe_name, recipe_image, cooking_method, source, description, ingredients, instructions, link } = req.body;
 
         // Make sure required fields are included.
         if (!recipe_id || !recipe_name) {
@@ -31,7 +37,14 @@ router.post(
             recipe_id,
             recipe_name,
             recipe_image: recipe_image || null,
-            cooking_method: cooking_method || null
+            cooking_method: cooking_method || null,
+            source: source || null,
+            description: description || null,
+            ingredients: Array.isArray(ingredients)
+                ? ingredients.map((item) => String(item || "").trim()).filter(Boolean)
+                : [],
+            instructions: instructions || "",
+            link: link || ""
         });
 
         const savedBookmark = await newBookmark.save();

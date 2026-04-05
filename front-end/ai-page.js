@@ -428,7 +428,13 @@ function buildAiBookmarkPayload({ recipeName, ingredients, steps, whyItFits, tim
         recipe_id: stableId,
         recipe_name: cleanedName,
         recipe_image: null,
-        cooking_method: method
+        cooking_method: method,
+        source: "ai",
+        description: cleanupSingleLineText(whyItFits || "", 1000),
+        ingredients: cleanupList(ingredients || [], { maxItems: 50, maxChars: 320 }),
+        instructions: cleanupList(steps || [], { maxItems: 40, maxChars: 500 }).join("\n"),
+        link: "",
+        suggestion: String(suggestion || "")
     };
 }
 
@@ -499,7 +505,11 @@ async function handleAiBookmarkClick(event) {
             recipe_name: currentAiBookmarkPayload.recipe_name,
             recipe_image: currentAiBookmarkPayload.recipe_image || "",
             cooking_method: currentAiBookmarkPayload.cooking_method || "unknown",
-            description: currentAiBookmarkPayload.cooking_method || ""
+            source: currentAiBookmarkPayload.source || "ai",
+            description: currentAiBookmarkPayload.description || "",
+            ingredients: Array.isArray(currentAiBookmarkPayload.ingredients) ? currentAiBookmarkPayload.ingredients : [],
+            instructions: currentAiBookmarkPayload.instructions || "",
+            link: currentAiBookmarkPayload.link || ""
         });
         savedAiRecipeIds.add(recipeId);
         button.innerHTML = '<i class="fas fa-bookmark" aria-hidden="true"></i> Saved to Bookmarks';
