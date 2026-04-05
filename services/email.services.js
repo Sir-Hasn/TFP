@@ -228,3 +228,49 @@ export async function sendEmailChangeCodeEmail({ userEmail, userName, code, expi
     console.error(`Email service error: Failed email-change code to ${maskedRecipient} - ${result.reason}`);
     return { sent: false, reason: result.reason };
 }
+
+export async function sendEmailChangedAlertEmail({ oldEmail, userName, newEmail, changedAt }) {
+    const recipient = String(oldEmail || "").trim();
+    const maskedRecipient = maskEmail(recipient);
+    if (!isValidEmail(recipient)) {
+        console.warn(`Email service: Skipping email-change alert due to invalid old email '${maskedRecipient}'`);
+        return { sent: false, reason: "Invalid recipient email" };
+    }
+
+    const safeName = String(userName || "User").trim() || "User";
+    const safeNewEmail = String(newEmail || "").trim();
+    const changedTime = formatEmailTimestamp(changedAt);
+
+    const text = [
+        `Dear ${safeName},`,
+        "",
+        `This is a security notice that your account email was changed on ${changedTime}.`,
+        `New email address: ${safeNewEmail || "(not available)"}`,
+        "",
+        "If you did not perform this action, please contact support immediately.",
+        ""
+    ].join("\n");
+
+    const html = `
+        <p>Dear ${safeName},</p>
+        <p>This is a security notice that your account email was changed on <strong>${changedTime}</strong>.</p>
+        <p>New email address: <strong>${safeNewEmail || "(not available)"}</strong>.</p>
+        <p>If you did not perform this action, please contact support immediately.</p>
+    `;
+
+    console.log(`Email service: Attempting to send email-change alert to old email ${maskedRecipient}`);
+    const result = await sendWithSendGrid({
+        to: recipient,
+        subject: "Security notice: Your account email was changed",
+        text,
+        html
+    });
+
+    if (result.sent) {
+        console.log(`Email service: Successfully sent email-change alert to ${maskedRecipient}`);
+        return { sent: true };
+    }
+
+    console.error(`Email service error: Failed email-change alert to ${maskedRecipient} - ${result.reason}`);
+    return { sent: false, reason: result.reason };
+}

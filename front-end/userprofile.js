@@ -141,7 +141,7 @@ function setEmailVerificationVisibility(isVisible, hintMessage = "") {
     }
 
     group.classList.toggle("hidden", !isVisible);
-    hint.textContent = hintMessage || "We sent a verification code to your new email address.";
+    hint.textContent = hintMessage || "We sent a verification code to your current email address.";
 
     if (isVisible) {
         codeInput.focus();
@@ -162,7 +162,7 @@ async function requestEmailVerificationCode(newEmail) {
     });
 
     state.pendingEmailVerification = newEmail;
-    setEmailVerificationVisibility(true, data.message || "Verification code sent. Check your email.");
+    setEmailVerificationVisibility(true, data.message || "Verification code sent to your current email. Check your inbox.");
     setStatus(data.message || "Verification code sent. Enter it to continue.");
 }
 

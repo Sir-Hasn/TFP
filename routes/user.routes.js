@@ -6,7 +6,7 @@ import { verifyToken } from "../middleware/auth.middleware.js";
 import { validateRequest } from "../middleware/requestValidation.middleware.js";
 import { CookingHistory } from "../models/cookingHistory.models.js";
 import { User } from "../models/user.models.js";
-import { sendEmailChangeCodeEmail, sendPasswordChangedEmail } from "../services/email.services.js";
+import { sendEmailChangeCodeEmail, sendEmailChangedAlertEmail, sendPasswordChangedEmail } from "../services/email.services.js";
 
 const router = express.Router();
 
@@ -248,7 +248,7 @@ router.post(
       await user.save();
 
       const mailResult = await sendEmailChangeCodeEmail({
-        userEmail: newEmail,
+        userEmail: user.email,
         userName: user.full_name || user.username,
         code,
         expiresInMinutes: Math.floor(EMAIL_CHANGE_CODE_TTL_MS / 60000)
@@ -259,7 +259,7 @@ router.post(
       }
 
       return res.json({
-        message: "Verification code sent to your new email.",
+        message: "Verification code sent to your current email.",
         expiresInSeconds: Math.floor(EMAIL_CHANGE_CODE_TTL_MS / 1000)
       });
     } catch (err) {
@@ -322,6 +322,7 @@ router.post(
         return res.status(409).json({ message: "Email already in use" });
       }
 
+      const previousEmail = String(user.email || "").trim();
       user.email = newEmail;
       user.pending_email = "";
       user.email_change_code_hash = "";
@@ -329,6 +330,17 @@ router.post(
       user.email_change_code_attempts = 0;
       user.email_change_requested_at = null;
       const updatedUser = await user.save();
+
+      try {
+        await sendEmailChangedAlertEmail({
+          oldEmail: previousEmail,
+          userName: updatedUser.full_name || updatedUser.username,
+          newEmail: updatedUser.email,
+          changedAt: new Date()
+        });
+      } catch (mailErr) {
+        console.error("Error sending email-change alert to old email:", mailErr.message);
+      }
 
       return res.json({
         message: "Email verified and updated successfully.",
