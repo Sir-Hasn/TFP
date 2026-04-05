@@ -428,13 +428,6 @@ input:checked + .slider:before {
 }
 
 .footer {
-    background-color: #3c2415;
-    color: #ddd9ce;
-    padding: 60px 20px 40px;
-    text-align: center;
-}
-
-.footer {
     background: #3c2415;
     color: #ddd9ce;
     padding: 40px 20px;

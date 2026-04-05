@@ -1452,6 +1452,7 @@ function initPasswordToggle() {
 async function initAboutHeaderAuthState() {
     const authActions = document.getElementById("about-auth-actions");
     const homeLink = document.getElementById("about-home-link");
+    const recipesLink = document.getElementById("about-recipes-link");
 
     if (!authActions || !homeLink) {
         return;
@@ -1459,6 +1460,16 @@ async function initAboutHeaderAuthState() {
 
     const isLoggedIn = await hasValidUserSession();
     homeLink.href = isLoggedIn ? "user-home.html" : "guest-home.html";
+
+    if (recipesLink) {
+        if (isLoggedIn) {
+            recipesLink.classList.remove("hidden");
+            recipesLink.href = "recipe-main-page.html";
+        } else {
+            recipesLink.classList.add("hidden");
+            recipesLink.href = "guest-home.html";
+        }
+    }
 
     if (!isLoggedIn) {
         return;

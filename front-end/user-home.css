@@ -315,24 +315,23 @@ section.hero > .hero {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px; 
+    gap: 30px;
+    padding: 60px 20px 40px;
+    text-align: center;
 }
 
 .footer-brand {
-    font-size: 2.5rem;
     font-weight: 800;
-    letter-spacing: 2px;
+    font-family: 'Poppins';
+    font-size: large;
+    margin-bottom: 10px;
 }
 
 .footer-bottom {
-    width: 100%;
-    padding-top: 30px;
-    border-top: 1px solid rgba(221, 217, 206, 0.1);
     text-align: center;
 }
 
 .footer-bottom p {
-    font-size: 0.8rem;
-    opacity: 0.6;
-    letter-spacing: 1px;
+    font-size: 0.7rem;
+    opacity: 0.5;
 }
