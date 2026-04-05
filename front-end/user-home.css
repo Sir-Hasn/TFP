@@ -302,37 +302,22 @@ section.hero > .hero {
 }
 
 .footer {
-    background-color: #3c2415;
+    background: #3c2415;
     color: #ddd9ce;
-    padding: 60px 20px 40px 20px;
-    width: 100%;
+    padding: 40px 20px;
+    text-align: center;
     margin-top: auto;
 }
 
-.footer-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px; 
-}
-
 .footer-brand {
-    font-size: 2.5rem;
     font-weight: 800;
-    letter-spacing: 2px;
+    font-family: 'Poppins';
+    font-size: large;
+    margin-bottom: 10px;
 }
 
-.footer-bottom {
-    width: 100%;
-    padding-top: 30px;
-    border-top: 1px solid rgba(221, 217, 206, 0.1);
-    text-align: center;
-}
-
-.footer-bottom p {
-    font-size: 0.8rem;
-    opacity: 0.6;
-    letter-spacing: 1px;
+.footer p {
+    font-size: 11.2px;
+    color: #ddd9ce;
+    opacity: 0.5;
 }
