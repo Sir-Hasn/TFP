@@ -44,6 +44,7 @@
             </div>
             <button type="submit" class="auth-btn">Log In</button>
         </form>
+        <p class="auth-toggle"><a href="javascript:void(0)" onclick="switchModal('loginModal', 'forgotModal')">Forgot your password?</a></p>
         <p id="login-message" class="auth-message" role="status" aria-live="polite"></p>
         <p class="auth-toggle">Don't have an account yet? <a href="javascript:void(0)" onclick="switchModal('loginModal', 'signupModal')">Sign Up</a></p>
     </div>
@@ -67,6 +68,37 @@
         </form>
         <p id="signup-message" class="auth-message" role="status" aria-live="polite"></p>
         <p class="auth-toggle">Already have an account? <a href="javascript:void(0)" onclick="switchModal('signupModal', 'loginModal')">Log In</a></p>
+    </div>
+</div>
+
+<div id="forgotModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('forgotModal')">&times;</span>
+        <h2>Forgot Password</h2>
+        <form id="forgot-form">
+            <input type="email" id="forgot-email" placeholder="Email Address" required>
+            <button type="submit" class="auth-btn">Send Reset Code</button>
+        </form>
+        <section id="forgot-reset-panel" class="forgot-reset-panel">
+            <p class="forgot-step-text">After you send the code, enter it here together with your new password.</p>
+            <form id="reset-form">
+                <input type="text" id="reset-code" placeholder="6-digit code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required>
+                <div class="password-input-wrapper">
+                    <input type="password" id="reset-new-password" class="password-input" placeholder="New Password" required>
+                    <button type="button" class="password-toggle" aria-label="Show/Hide Password">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <button type="submit" class="auth-btn" id="reset-password-button" disabled>Reset Password</button>
+            </form>
+            <p class="auth-toggle forgot-inline-actions">
+                <a href="javascript:void(0)" onclick="resendForgotCode()">Resend code</a>
+                <span class="forgot-separator">•</span>
+                <a href="javascript:void(0)" onclick="returnToForgotEmailStep()">Change email</a>
+            </p>
+        </section>
+        <p id="forgot-message" class="auth-message" role="status" aria-live="polite"></p>
+        <p class="auth-toggle">Remembered your password? <a href="javascript:void(0)" onclick="switchModal('forgotModal', 'loginModal')">Back to Log In</a></p>
     </div>
 </div>
 
