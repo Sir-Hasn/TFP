@@ -125,6 +125,11 @@ function getBookmarkSourceLabel(bookmark) {
         return "AI Kitchen Assistant";
     }
 
+    const source = String(bookmark?.source || "").trim().toLowerCase();
+    if (source === "admin") {
+        return "Admin Recipe";
+    }
+
     return "Panlasang Pinoy";
 }
 
@@ -136,7 +141,9 @@ function buildDetailFromBookmark(bookmark) {
 
     return {
         title,
-        source: isAiBookmark(bookmark) ? "ai" : "bookmark",
+        source: isAiBookmark(bookmark)
+            ? "ai"
+            : String(bookmark?.source || "bookmark").trim().toLowerCase(),
         description: String(bookmark?.description || "").trim() || "Saved recipe from your bookmark list.",
         ingredients,
         instructions: String(bookmark?.instructions || "").trim(),
