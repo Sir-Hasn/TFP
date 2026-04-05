@@ -175,3 +175,56 @@ export async function sendPasswordResetCodeEmail({ userEmail, userName, code, ex
     console.error(`Email service error: Failed reset code email to ${maskedRecipient} - ${result.reason}`);
     return { sent: false, reason: result.reason };
 }
+
+export async function sendEmailChangeCodeEmail({ userEmail, userName, code, expiresInMinutes }) {
+    const recipient = String(userEmail || "").trim();
+    const maskedRecipient = maskEmail(recipient);
+    if (!isValidEmail(recipient)) {
+        console.warn(`Email service: Skipping email-change code email due to invalid recipient '${maskedRecipient}'`);
+        return { sent: false, reason: "Invalid recipient email" };
+    }
+
+    const safeName = String(userName || "User").trim() || "User";
+    const safeCode = String(code || "").trim();
+    const ttl = Number.parseInt(expiresInMinutes || "10", 10) || 10;
+
+    if (!safeCode) {
+        return { sent: false, reason: "Verification code is missing" };
+    }
+
+    const text = [
+        `Dear ${safeName},`,
+        "",
+        "We received a request to change the email address on your account.",
+        `Your verification code is: ${safeCode}`,
+        `This code expires in ${ttl} minutes.`,
+        "",
+        "If you did not request this change, you can ignore this email.",
+        ""
+    ].join("\n");
+
+    const html = `
+        <p>Dear ${safeName},</p>
+        <p>We received a request to change the email address on your account.</p>
+        <p>Your verification code is:</p>
+        <p style="font-size: 20px; font-weight: 700; letter-spacing: 2px;">${safeCode}</p>
+        <p>This code expires in <strong>${ttl} minutes</strong>.</p>
+        <p>If you did not request this change, you can ignore this email.</p>
+    `;
+
+    console.log(`Email service: Attempting to send email-change code to ${maskedRecipient}`);
+    const result = await sendWithSendGrid({
+        to: recipient,
+        subject: "Verify your new email address",
+        text,
+        html
+    });
+
+    if (result.sent) {
+        console.log(`Email service: Successfully sent email-change code to ${maskedRecipient}`);
+        return { sent: true };
+    }
+
+    console.error(`Email service error: Failed email-change code to ${maskedRecipient} - ${result.reason}`);
+    return { sent: false, reason: result.reason };
+}

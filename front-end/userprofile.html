@@ -86,6 +86,18 @@
                         </div>
                     </div>
 
+                    <div id="email-verification-group" class="form-group hidden" aria-live="polite">
+                        <label for="emailVerificationCode">Email Verification Code</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-envelope-open-text"></i>
+                            <input type="text" id="emailVerificationCode" name="email_verification_code" inputmode="numeric" maxlength="6" placeholder="Enter the 6-digit code">
+                        </div>
+                        <small id="emailVerificationHint" class="helper-text">We sent a verification code to your new email address.</small>
+                        <div class="form-actions">
+                            <button type="button" class="cancel-btn" id="resendEmailCodeBtn">Resend Code</button>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label for="password">New Password</label>
                         <div class="input-with-icon">

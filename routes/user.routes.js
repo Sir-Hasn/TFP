@@ -1,11 +1,12 @@
 import express from "express";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { body } from "express-validator";
 import { verifyToken } from "../middleware/auth.middleware.js";
 import { validateRequest } from "../middleware/requestValidation.middleware.js";
 import { CookingHistory } from "../models/cookingHistory.models.js";
 import { User } from "../models/user.models.js";
-import { sendPasswordChangedEmail } from "../services/email.services.js";
+import { sendEmailChangeCodeEmail, sendPasswordChangedEmail } from "../services/email.services.js";
 
 const router = express.Router();
 
@@ -49,6 +50,10 @@ const FILIPINO_COOKING_METHODS = [
   "totso"
 ];
 
+const EMAIL_CHANGE_CODE_TTL_MS = 10 * 60 * 1000;
+const EMAIL_CHANGE_CODE_MAX_ATTEMPTS = 5;
+const EMAIL_CHANGE_CODE_COOLDOWN_MS = 60 * 1000;
+
 function normalizeString(value) {
   return String(value ?? "").trim();
 }
@@ -76,6 +81,14 @@ function normalizeAllergens(allergens) {
 function isStrongPassword(value) {
   const password = String(value || "");
   return password.length >= 6 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password);
+}
+
+function generateVerificationCode() {
+  return String(crypto.randomInt(100000, 1000000));
+}
+
+function hashVerificationCode(code) {
+  return crypto.createHash("sha256").update(String(code || "")).digest("hex");
 }
 
 function normalizeMethod(method) {
@@ -184,6 +197,153 @@ router.get("/stats", verifyToken, async (req, res) => {
     return res.status(500).json({ message: "Error fetching cooking stats", error: err.message });
   }
 });
+
+router.post(
+  "/email-change/request",
+  verifyToken,
+  validateRequest([
+    body("new_email").trim().isEmail().withMessage("Invalid email format")
+  ]),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const newEmail = normalizeEmail(req.body.new_email);
+      if (!newEmail) {
+        return res.status(400).json({ message: "New email is required" });
+      }
+
+      if (newEmail === normalizeEmail(user.email)) {
+        return res.status(400).json({ message: "New email must be different from your current email" });
+      }
+
+      const emailTaken = await User.findOne({ email: newEmail, _id: { $ne: user._id } }).select("_id");
+      if (emailTaken) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+
+      const now = Date.now();
+      const lastRequestedAt = user.email_change_requested_at ? new Date(user.email_change_requested_at).getTime() : 0;
+      if (
+        user.pending_email
+        && normalizeEmail(user.pending_email) === newEmail
+        && lastRequestedAt
+        && (now - lastRequestedAt) < EMAIL_CHANGE_CODE_COOLDOWN_MS
+      ) {
+        return res.status(429).json({
+          message: "Please wait before requesting another code.",
+          retryAfterSeconds: Math.ceil((EMAIL_CHANGE_CODE_COOLDOWN_MS - (now - lastRequestedAt)) / 1000)
+        });
+      }
+
+      const code = generateVerificationCode();
+      user.pending_email = newEmail;
+      user.email_change_code_hash = hashVerificationCode(code);
+      user.email_change_code_expires_at = new Date(now + EMAIL_CHANGE_CODE_TTL_MS);
+      user.email_change_code_attempts = 0;
+      user.email_change_requested_at = new Date(now);
+      await user.save();
+
+      const mailResult = await sendEmailChangeCodeEmail({
+        userEmail: newEmail,
+        userName: user.full_name || user.username,
+        code,
+        expiresInMinutes: Math.floor(EMAIL_CHANGE_CODE_TTL_MS / 60000)
+      });
+
+      if (!mailResult.sent) {
+        return res.status(500).json({ message: "Could not send verification code right now. Please try again." });
+      }
+
+      return res.json({
+        message: "Verification code sent to your new email.",
+        expiresInSeconds: Math.floor(EMAIL_CHANGE_CODE_TTL_MS / 1000)
+      });
+    } catch (err) {
+      console.error("Error requesting email change code:", err.message);
+      return res.status(500).json({ message: "Error requesting email change code", error: err.message });
+    }
+  }
+);
+
+router.post(
+  "/email-change/verify",
+  verifyToken,
+  validateRequest([
+    body("new_email").trim().isEmail().withMessage("Invalid email format"),
+    body("code").trim().isLength({ min: 6, max: 6 }).withMessage("Code must be 6 digits")
+  ]),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const newEmail = normalizeEmail(req.body.new_email);
+      const code = normalizeString(req.body.code);
+
+      if (!user.pending_email || normalizeEmail(user.pending_email) !== newEmail) {
+        return res.status(400).json({ message: "No pending verification was found for that email." });
+      }
+
+      if (!user.email_change_code_hash || !user.email_change_code_expires_at) {
+        return res.status(400).json({ message: "Please request a new verification code." });
+      }
+
+      const expiresAt = new Date(user.email_change_code_expires_at).getTime();
+      if (!expiresAt || Date.now() > expiresAt) {
+        user.pending_email = "";
+        user.email_change_code_hash = "";
+        user.email_change_code_expires_at = null;
+        user.email_change_code_attempts = 0;
+        user.email_change_requested_at = null;
+        await user.save();
+        return res.status(400).json({ message: "Verification code expired. Please request a new one." });
+      }
+
+      const attempts = Number.parseInt(user.email_change_code_attempts || 0, 10);
+      if (attempts >= EMAIL_CHANGE_CODE_MAX_ATTEMPTS) {
+        return res.status(429).json({ message: "Too many incorrect attempts. Please request a new code." });
+      }
+
+      const inputHash = hashVerificationCode(code);
+      if (inputHash !== user.email_change_code_hash) {
+        user.email_change_code_attempts = attempts + 1;
+        await user.save();
+        return res.status(400).json({ message: "Invalid verification code." });
+      }
+
+      const emailTaken = await User.findOne({ email: newEmail, _id: { $ne: user._id } }).select("_id");
+      if (emailTaken) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+
+      user.email = newEmail;
+      user.pending_email = "";
+      user.email_change_code_hash = "";
+      user.email_change_code_expires_at = null;
+      user.email_change_code_attempts = 0;
+      user.email_change_requested_at = null;
+      const updatedUser = await user.save();
+
+      return res.json({
+        message: "Email verified and updated successfully.",
+        user: buildProfileResponse(updatedUser)
+      });
+    } catch (err) {
+      if (err?.code === 11000) {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+
+      console.error("Error verifying email change code:", err.message);
+      return res.status(500).json({ message: "Error verifying email change code", error: err.message });
+    }
+  }
+);
 
 // Update the logged-in user's profile.
 router.put(

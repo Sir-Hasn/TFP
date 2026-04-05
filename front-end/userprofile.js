@@ -6,7 +6,8 @@ const state = {
     profile: null,
     stats: null,
     avatarDataUrl: "",
-    saving: false
+    saving: false,
+    pendingEmailVerification: ""
 };
 const ALLERGEN_ALLOWED_CHARACTERS = /^[A-Za-z, ]*$/;
 
@@ -130,6 +131,55 @@ function setSaving(isSaving) {
     state.saving = isSaving;
 }
 
+function setEmailVerificationVisibility(isVisible, hintMessage = "") {
+    const group = document.getElementById("email-verification-group");
+    const codeInput = document.getElementById("emailVerificationCode");
+    const hint = document.getElementById("emailVerificationHint");
+
+    if (!group || !codeInput || !hint) {
+        return;
+    }
+
+    group.classList.toggle("hidden", !isVisible);
+    hint.textContent = hintMessage || "We sent a verification code to your new email address.";
+
+    if (isVisible) {
+        codeInput.focus();
+    } else {
+        codeInput.value = "";
+    }
+}
+
+function clearPendingEmailVerification() {
+    state.pendingEmailVerification = "";
+    setEmailVerificationVisibility(false);
+}
+
+async function requestEmailVerificationCode(newEmail) {
+    const data = await apiRequest("/user/email-change/request", {
+        method: "POST",
+        body: JSON.stringify({ new_email: newEmail })
+    });
+
+    state.pendingEmailVerification = newEmail;
+    setEmailVerificationVisibility(true, data.message || "Verification code sent. Check your email.");
+    setStatus(data.message || "Verification code sent. Enter it to continue.");
+}
+
+async function verifyEmailChange(newEmail, code) {
+    const data = await apiRequest("/user/email-change/verify", {
+        method: "POST",
+        body: JSON.stringify({ new_email: newEmail, code })
+    });
+
+    if (data?.user) {
+        state.profile = data.user;
+    }
+
+    clearPendingEmailVerification();
+    setStatus(data.message || "Email verified successfully.");
+}
+
 function renderAvatar(profile) {
     const avatarPreview = document.getElementById("avatarPreview");
     if (!avatarPreview) {
@@ -151,6 +201,7 @@ function renderAvatar(profile) {
 
 function renderProfile(profile) {
     state.profile = profile;
+    clearPendingEmailVerification();
 
     const fullNameInput = document.getElementById("fullName");
     const usernameInput = document.getElementById("username");
@@ -347,10 +398,47 @@ async function handleProfileSubmit(event) {
         return;
     }
 
+    const normalizedEmail = normalizeEmail(email);
+    const currentEmail = normalizeEmail(state.profile?.email || "");
+    const emailChanged = normalizedEmail !== currentEmail;
+
+    if (emailChanged) {
+        const needsCodeRequest = !state.pendingEmailVerification || state.pendingEmailVerification !== normalizedEmail;
+        if (needsCodeRequest) {
+            setSaving(true);
+            setStatus("Sending verification code to your new email...");
+            try {
+                await requestEmailVerificationCode(normalizedEmail);
+            } catch (error) {
+                setStatus(error.message || "Could not send verification code.", true);
+            } finally {
+                setSaving(false);
+            }
+            return;
+        }
+
+        const code = normalizeText(document.getElementById("emailVerificationCode")?.value || "");
+        if (!/^\d{6}$/.test(code)) {
+            setStatus("Enter the 6-digit verification code sent to your new email.", true);
+            setEmailVerificationVisibility(true);
+            return;
+        }
+
+        setSaving(true);
+        setStatus("Verifying email code...");
+        try {
+            await verifyEmailChange(normalizedEmail, code);
+        } catch (error) {
+            setStatus(error.message || "Invalid or expired verification code.", true);
+            setSaving(false);
+            return;
+        }
+    }
+
     const payload = {
         full_name: normalizeText(fullName),
         username: normalizeText(username),
-        email: normalizeEmail(email),
+        email: normalizeEmail(document.getElementById("email")?.value || ""),
         allergens: splitAllergens(allergens)
     };
 
@@ -396,6 +484,25 @@ function resetProfileForm() {
     }
 }
 
+async function handleResendEmailCode() {
+    const emailInput = document.getElementById("email");
+    const newEmail = normalizeEmail(emailInput?.value || "");
+    if (!newEmail) {
+        setStatus("Enter a valid new email first.", true);
+        return;
+    }
+
+    setSaving(true);
+    setStatus("Resending verification code...");
+    try {
+        await requestEmailVerificationCode(newEmail);
+    } catch (error) {
+        setStatus(error.message || "Could not resend verification code.", true);
+    } finally {
+        setSaving(false);
+    }
+}
+
 function handleLogout(event) {
     event.preventDefault();
     clearToken();
@@ -408,6 +515,8 @@ function attachEvents() {
     const cancelBtn = document.getElementById("cancelBtn");
     const logoutLink = document.getElementById("logout-link");
     const allergensInput = document.getElementById("allergens");
+    const resendEmailCodeBtn = document.getElementById("resendEmailCodeBtn");
+    const emailVerificationCodeInput = document.getElementById("emailVerificationCode");
 
     if (profileForm) {
         profileForm.addEventListener("submit", handleProfileSubmit);
@@ -440,6 +549,19 @@ function attachEvents() {
             input.addEventListener("input", refreshSidebarFromInputs);
         }
     });
+
+    if (resendEmailCodeBtn) {
+        resendEmailCodeBtn.addEventListener("click", handleResendEmailCode);
+    }
+
+    if (emailVerificationCodeInput) {
+        emailVerificationCodeInput.addEventListener("input", () => {
+            const cleaned = String(emailVerificationCodeInput.value || "").replace(/\D/g, "").slice(0, 6);
+            if (cleaned !== emailVerificationCodeInput.value) {
+                emailVerificationCodeInput.value = cleaned;
+            }
+        });
+    }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
