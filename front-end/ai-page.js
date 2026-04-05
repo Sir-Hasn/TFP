@@ -2,6 +2,9 @@ const AI_API_BASE_URL = window.location.protocol === "file:"
     ? "http://localhost:3000/api"
     : `${window.location.origin}/api`;
 
+let currentAiBookmarkPayload = null;
+const savedAiRecipeIds = new Set();
+
 function getToken() {
     return localStorage.getItem("token");
 }
@@ -275,6 +278,17 @@ function renderSuggestion(response, formValues) {
     const cleanedSteps = cleanupList(parsed?.stepLines || [], { maxItems: 40, maxChars: 500 });
     const cleanedNutrition = cleanupList(parsed?.nutrition || [], { maxItems: 20, maxChars: 240 });
 
+    currentAiBookmarkPayload = buildAiBookmarkPayload({
+        recipeName: parsed?.recipeName || "",
+        ingredients: cleanedIngredients,
+        steps: cleanedSteps,
+        whyItFits: cleanedWhy,
+        timeEstimate: cleanedTime,
+        suggestion: response.suggestion || ""
+    });
+
+    const isAlreadySaved = savedAiRecipeIds.has(currentAiBookmarkPayload.recipe_id);
+
     const ingredientsHtml = cleanedIngredients.length
         ? `<ul class="section-list">${renderListItems(cleanedIngredients)}</ul>`
         : "";
@@ -298,6 +312,7 @@ function renderSuggestion(response, formValues) {
             <div class="result-meta">
                 ${promptSummary.map((item) => `<span class="meta-chip">${escapeHtml(item)}</span>`).join("")}
             </div>
+            ${getAiBookmarkActionMarkup(currentAiBookmarkPayload.recipe_id, isAlreadySaved)}
             ${ingredientList.length > 0 ? `
                 <section class="result-section">
                     <h3>Your Ingredients</h3>
@@ -355,6 +370,143 @@ function getTimeLabel(value) {
             return "Slow cook / 1+ hours";
         default:
             return "Any amount of time";
+    }
+}
+
+function slugify(value) {
+    return String(value || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 64);
+}
+
+function hashString(value) {
+    let hash = 0;
+    const text = String(value || "");
+    for (let i = 0; i < text.length; i += 1) {
+        hash = ((hash << 5) - hash) + text.charCodeAt(i);
+        hash |= 0;
+    }
+
+    return Math.abs(hash).toString(16);
+}
+
+function inferAiCookingMethod(text) {
+    const haystack = String(text || "").toLowerCase();
+
+    const methodByKeywords = [
+        { method: "adobo", keywords: ["adobo"] },
+        { method: "boil", keywords: ["boil", "nilaga", "tinola", "simmer"] },
+        { method: "fry", keywords: ["fry", "fried", "prito", "crispy"] },
+        { method: "grill", keywords: ["grill", "ihaw", "inasal", "inihaw"] },
+        { method: "saute", keywords: ["saute", "sauteed", "gisa", "ginisa"] },
+        { method: "stew", keywords: ["stew", "caldereta", "kaldereta", "menudo", "afritada"] },
+        { method: "steam", keywords: ["steam", "steamed"] },
+        { method: "bake", keywords: ["bake", "baked", "oven"] },
+        { method: "roast", keywords: ["roast", "roasted"] }
+    ];
+
+    const match = methodByKeywords.find((entry) => entry.keywords.some((keyword) => haystack.includes(keyword)));
+    return match ? match.method : "unknown";
+}
+
+function buildAiBookmarkPayload({ recipeName, ingredients, steps, whyItFits, timeEstimate, suggestion }) {
+    const cleanedName = cleanupSingleLineText(recipeName, 120) || "AI Suggested Recipe";
+    const compactIngredients = cleanupList(ingredients || [], { maxItems: 10, maxChars: 80 }).join(", ");
+    const compactTime = cleanupSingleLineText(timeEstimate || "", 80);
+    const sourceText = [cleanedName, compactIngredients, compactTime].filter(Boolean).join("|");
+    const stableId = `ai-${slugify(cleanedName) || "recipe"}-${hashString(sourceText || suggestion)}`;
+
+    const method = inferAiCookingMethod([
+        cleanedName,
+        cleanupSingleLineText(whyItFits || "", 300),
+        cleanupList(steps || [], { maxItems: 8, maxChars: 120 }).join(" ")
+    ].join(" "));
+
+    return {
+        recipe_id: stableId,
+        recipe_name: cleanedName,
+        recipe_image: null,
+        cooking_method: method
+    };
+}
+
+async function hydrateExistingAiBookmarks() {
+    if (!window.BookmarkService || typeof window.BookmarkService.getBookmarks !== "function") {
+        return;
+    }
+
+    const bookmarks = await window.BookmarkService.getBookmarks();
+    bookmarks.forEach((bookmark) => {
+        const recipeId = String(bookmark?.recipe_id || "").trim();
+        if (recipeId.startsWith("ai-")) {
+            savedAiRecipeIds.add(recipeId);
+        }
+    });
+}
+
+function setAiBookmarkStatus(message, isError = false) {
+    const status = document.getElementById("bookmark-ai-status");
+    if (!status) {
+        return;
+    }
+
+    status.textContent = message || "";
+    status.classList.toggle("error", Boolean(isError));
+}
+
+function getAiBookmarkActionMarkup(recipeId, isSaved) {
+    return `
+        <div class="result-actions">
+            <button type="button" class="bookmark-ai-btn" data-ai-bookmark-id="${escapeHtml(recipeId)}" ${isSaved ? "disabled" : ""}>
+                <i class="fas fa-bookmark" aria-hidden="true"></i>
+                ${isSaved ? "Saved to Bookmarks" : "Save to Bookmarks"}
+            </button>
+            <p id="bookmark-ai-status" class="bookmark-ai-status">${isSaved ? "This AI recipe is already in your bookmarks." : ""}</p>
+        </div>
+    `;
+}
+
+async function handleAiBookmarkClick(event) {
+    const button = event.target.closest(".bookmark-ai-btn");
+    if (!button) {
+        return;
+    }
+
+    const recipeId = String(button.getAttribute("data-ai-bookmark-id") || "").trim();
+    if (!recipeId || !currentAiBookmarkPayload || currentAiBookmarkPayload.recipe_id !== recipeId) {
+        setAiBookmarkStatus("No generated recipe is available to save right now.", true);
+        return;
+    }
+
+    if (savedAiRecipeIds.has(recipeId)) {
+        button.disabled = true;
+        setAiBookmarkStatus("This AI recipe is already in your bookmarks.", false);
+        return;
+    }
+
+    button.disabled = true;
+    setAiBookmarkStatus("Saving recipe to bookmarks...", false);
+
+    try {
+        if (!window.BookmarkService || typeof window.BookmarkService.addBookmark !== "function") {
+            throw new Error("Bookmark service is not available on this page.");
+        }
+
+        await window.BookmarkService.addBookmark({
+            recipe_id: currentAiBookmarkPayload.recipe_id,
+            recipe_name: currentAiBookmarkPayload.recipe_name,
+            recipe_image: currentAiBookmarkPayload.recipe_image || "",
+            cooking_method: currentAiBookmarkPayload.cooking_method || "unknown",
+            description: currentAiBookmarkPayload.cooking_method || ""
+        });
+        savedAiRecipeIds.add(recipeId);
+        button.innerHTML = '<i class="fas fa-bookmark" aria-hidden="true"></i> Saved to Bookmarks';
+        setAiBookmarkStatus("Recipe saved to your bookmarks.", false);
+    } catch (error) {
+        button.disabled = false;
+        setAiBookmarkStatus(error.message || "Could not save this recipe right now.", true);
     }
 }
 
@@ -418,12 +570,17 @@ function initializeAiPage() {
     const ingredientsInput = document.getElementById("ingredients");
     const timeInput = document.getElementById("time");
     const useAllergensInput = document.getElementById("use-allergens");
+    const resultsArea = document.getElementById("results-area");
 
-    if (!form || !ingredientsInput || !timeInput || !useAllergensInput) {
+    if (!form || !ingredientsInput || !timeInput || !useAllergensInput || !resultsArea) {
         return;
     }
 
     renderIdleState();
+    hydrateExistingAiBookmarks().catch(() => {});
+    resultsArea.addEventListener("click", (event) => {
+        handleAiBookmarkClick(event).catch(() => {});
+    });
 
     form.addEventListener("submit", async (event) => {
         event.preventDefault();

@@ -258,42 +258,27 @@ function getFallbackImage(name) {
 }
 
 async function fetchBookmarks() {
-    const token = getToken();
-    if (!token) {
+    if (!window.BookmarkService || typeof window.BookmarkService.getBookmarks !== "function") {
+        throw new Error("Bookmark service is unavailable.");
+    }
+
+    if (!getToken()) {
         throw new Error("Please log in first to view your bookmarks.");
     }
 
-    const response = await fetch(`${API_BASE_URL}/bookmarks`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to load bookmarks.");
-    }
-
-    return Array.isArray(data.bookmarks) ? data.bookmarks : [];
+    return window.BookmarkService.getBookmarks();
 }
 
 async function deleteBookmark(bookmarkId) {
-    const token = getToken();
-    if (!token) {
+    if (!window.BookmarkService || typeof window.BookmarkService.removeBookmark !== "function") {
+        throw new Error("Bookmark service is unavailable.");
+    }
+
+    if (!getToken()) {
         throw new Error("Please log in first to manage bookmarks.");
     }
 
-    const response = await fetch(`${API_BASE_URL}/bookmarks/${bookmarkId}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Could not remove bookmark.");
-    }
+    await window.BookmarkService.removeBookmark(bookmarkId);
 }
 
 function renderBookmarks(bookmarks) {

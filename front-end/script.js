@@ -1,6 +1,8 @@
-const API_BASE_URL = window.location.protocol === "file:"
-    ? "http://localhost:3000/api"
-    : `${window.location.origin}/api`;
+const API_BASE_URL = window.ApiClient && typeof window.ApiClient.getApiBaseUrl === "function"
+    ? window.ApiClient.getApiBaseUrl()
+    : (window.location.protocol === "file:"
+        ? "http://localhost:3000/api"
+        : `${window.location.origin}/api`);
 
 
 //Signup and Login are included in guest-home html since they are only relevant to guests.
@@ -11,105 +13,52 @@ const API_BASE_URL = window.location.protocol === "file:"
 // Sign up a new user.
 
 async function signUp(username, email, password, allergens = []) {
-    const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password, allergens })
-    });
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(data.message || "Sign up failed");
+    if (!window.AuthService || typeof window.AuthService.signUp !== "function") {
+        throw new Error("Auth service is unavailable.");
     }
 
-    return data;
+    return window.AuthService.signUp(username, email, password, allergens);
 }
 
 // Login existing user/admin and get a token for authenticated requests.
 async function login(email, password) {
-    const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
-    });
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(data.message || "Login failed");
+    if (!window.AuthService || typeof window.AuthService.login !== "function") {
+        throw new Error("Auth service is unavailable.");
     }
 
-    return data;
+    return window.AuthService.login(email, password);
 }
 
 async function requestPasswordResetCode(email) {
-    const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Could not send reset code.");
+    if (!window.AuthService || typeof window.AuthService.requestPasswordResetCode !== "function") {
+        throw new Error("Auth service is unavailable.");
     }
 
-    return data;
+    return window.AuthService.requestPasswordResetCode(email);
 }
 
 async function resetPasswordWithCode(email, code, newPassword) {
-    const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, code, newPassword })
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Could not reset password.");
+    if (!window.AuthService || typeof window.AuthService.resetPasswordWithCode !== "function") {
+        throw new Error("Auth service is unavailable.");
     }
 
-    return data;
+    return window.AuthService.resetPasswordWithCode(email, code, newPassword);
 }
 
 async function fetchRecipes(query = "", limit = 20, page = 1) {
-    const params = new URLSearchParams();
-    if (query.trim()) {
-        params.set("q", query.trim());
-    }
-    params.set("num", String(limit));
-    params.set("page", String(page));
-
-    const response = await fetch(`${API_BASE_URL}/recipes?${params.toString()}`);
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to fetch recipes");
+    if (!window.RecipeService || typeof window.RecipeService.fetchRecipes !== "function") {
+        throw new Error("Recipe service is unavailable.");
     }
 
-    return data;
+    return window.RecipeService.fetchRecipes(query, limit, page);
 }
 
 async function fetchRecipesAcrossPages(query = "", pageSize = 20, maxPages = 5) {
-    const collectedRecipes = [];
-    let lastQuery = query;
-
-    for (let page = 1; page <= maxPages; page += 1) {
-        const result = await fetchRecipes(query, pageSize, page);
-        lastQuery = result.query || lastQuery;
-
-        if (Array.isArray(result.recipes) && result.recipes.length > 0) {
-            collectedRecipes.push(...result.recipes);
-        }
-
-        if (!Array.isArray(result.recipes) || result.recipes.length < pageSize) {
-            break;
-        }
+    if (!window.RecipeService || typeof window.RecipeService.fetchRecipesAcrossPages !== "function") {
+        throw new Error("Recipe service is unavailable.");
     }
 
-    return {
-        query: lastQuery,
-        recipes: collectedRecipes
-    };
+    return window.RecipeService.fetchRecipesAcrossPages(query, pageSize, maxPages);
 }
 
 function escapeHtml(value) {
@@ -541,51 +490,26 @@ function setRecipeMetaMessage(message, isError = false) {
 }
 
 async function fetchUserBookmarks() {
-    const token = getAuthToken();
-    if (!token) {
-        return [];
+    if (!window.BookmarkService || typeof window.BookmarkService.getBookmarks !== "function") {
+        throw new Error("Bookmark service is unavailable.");
     }
 
-    const response = await fetch(`${API_BASE_URL}/bookmarks`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to load bookmarks");
-    }
-
-    return Array.isArray(data.bookmarks) ? data.bookmarks : [];
+    return window.BookmarkService.getBookmarks();
 }
 
 async function addRecipeBookmark(recipe) {
-    const token = getAuthToken();
-    if (!token) {
-        throw new Error("Please log in to bookmark recipes.");
+    const payload = {
+        recipe_id: normalizeRecipeId(recipe),
+        recipe_name: recipe.title || "Untitled recipe",
+        recipe_image: recipe.image || "",
+        cooking_method: recipe.cooking_method || inferCookingMethodFromRecipe(recipe)
+    };
+
+    if (!window.BookmarkService || typeof window.BookmarkService.addBookmark !== "function") {
+        throw new Error("Bookmark service is unavailable.");
     }
 
-    const response = await fetch(`${API_BASE_URL}/bookmarks/add`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            recipe_id: normalizeRecipeId(recipe),
-            recipe_name: recipe.title || "Untitled recipe",
-            recipe_image: recipe.image || "",
-            cooking_method: inferCookingMethodFromRecipe(recipe)
-        })
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to save bookmark");
-    }
-
-    return data;
+    return window.BookmarkService.addBookmark(payload);
 }
 
 async function addCookingHistoryEntry(recipe) {
@@ -619,24 +543,11 @@ async function addCookingHistoryEntry(recipe) {
 }
 
 async function removeRecipeBookmark(bookmarkId) {
-    const token = getAuthToken();
-    if (!token) {
-        throw new Error("Please log in to manage bookmarks.");
+    if (!window.BookmarkService || typeof window.BookmarkService.removeBookmark !== "function") {
+        throw new Error("Bookmark service is unavailable.");
     }
 
-    const response = await fetch(`${API_BASE_URL}/bookmarks/${bookmarkId}`, {
-        method: "DELETE",
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
-    });
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) {
-        throw new Error(data.message || "Failed to remove bookmark");
-    }
-
-    return data;
+    return window.BookmarkService.removeBookmark(bookmarkId);
 }
 
 function updateBookmarkButtonState(button, isBookmarked) {

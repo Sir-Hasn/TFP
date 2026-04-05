@@ -310,6 +310,51 @@ input:checked + .slider:before {
     margin-bottom: 18px;
 }
 
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.bookmark-ai-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #3c2415;
+    color: #ddd9ce;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.bookmark-ai-btn:hover {
+    background: #5c3d2e;
+    transform: translateY(-1px);
+}
+
+.bookmark-ai-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.bookmark-ai-status {
+    margin: 0;
+    min-height: 20px;
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #3f5a1f;
+}
+
+.bookmark-ai-status.error {
+    color: #8d2d2d;
+}
+
 .meta-chip {
     display: inline-flex;
     align-items: center;
