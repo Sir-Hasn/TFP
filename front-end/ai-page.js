@@ -283,6 +283,7 @@ function renderSuggestion(response, formValues) {
         ingredients: cleanedIngredients,
         steps: cleanedSteps,
         whyItFits: cleanedWhy,
+        tip: cleanedTip,
         timeEstimate: cleanedTime,
         suggestion: response.suggestion || ""
     });
@@ -411,7 +412,7 @@ function inferAiCookingMethod(text) {
     return match ? match.method : "unknown";
 }
 
-function buildAiBookmarkPayload({ recipeName, ingredients, steps, whyItFits, timeEstimate, suggestion }) {
+function buildAiBookmarkPayload({ recipeName, ingredients, steps, whyItFits, tip, timeEstimate, suggestion }) {
     const cleanedName = cleanupSingleLineText(recipeName, 120) || "AI Suggested Recipe";
     const compactIngredients = cleanupList(ingredients || [], { maxItems: 10, maxChars: 80 }).join(", ");
     const compactTime = cleanupSingleLineText(timeEstimate || "", 80);
@@ -433,6 +434,7 @@ function buildAiBookmarkPayload({ recipeName, ingredients, steps, whyItFits, tim
         description: cleanupSingleLineText(whyItFits || "", 1000),
         ingredients: cleanupList(ingredients || [], { maxItems: 50, maxChars: 320 }),
         instructions: cleanupList(steps || [], { maxItems: 40, maxChars: 500 }).join("\n"),
+        tip: cleanupSingleLineText(tip || "", 1000),
         link: "",
         suggestion: String(suggestion || "")
     };
@@ -509,6 +511,7 @@ async function handleAiBookmarkClick(event) {
             description: currentAiBookmarkPayload.description || "",
             ingredients: Array.isArray(currentAiBookmarkPayload.ingredients) ? currentAiBookmarkPayload.ingredients : [],
             instructions: currentAiBookmarkPayload.instructions || "",
+            tip: currentAiBookmarkPayload.tip || "",
             link: currentAiBookmarkPayload.link || ""
         });
         savedAiRecipeIds.add(recipeId);

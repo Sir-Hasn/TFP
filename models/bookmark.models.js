@@ -10,6 +10,7 @@ const Bookmark = mongoose.model("Bookmark", new mongoose.Schema({
         description: String,
         ingredients: [String],
         instructions: String,
+        tip: String,
         link: String,
         bookmarked_at: { type: Date, default: Date.now }
     }));

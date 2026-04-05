@@ -140,6 +140,7 @@ function buildDetailFromBookmark(bookmark) {
         description: String(bookmark?.description || "").trim() || "Saved recipe from your bookmark list.",
         ingredients,
         instructions: String(bookmark?.instructions || "").trim(),
+        tip: String(bookmark?.tip || "").trim(),
         link: String(bookmark?.link || "").trim()
     };
 }
@@ -228,9 +229,11 @@ function showRecipeDetails(recipe, fallbackBookmark) {
     const description = document.getElementById("recipe-detail-description");
     const ingredients = document.getElementById("recipe-detail-ingredients");
     const steps = document.getElementById("recipe-detail-steps");
+    const tipHeading = document.getElementById("recipe-detail-tip-heading");
+    const tip = document.getElementById("recipe-detail-tip");
     const link = document.getElementById("recipe-detail-link");
 
-    if (!modal || !title || !source || !description || !ingredients || !steps || !link) {
+    if (!modal || !title || !source || !description || !ingredients || !steps || !tipHeading || !tip || !link) {
         return;
     }
 
@@ -239,6 +242,7 @@ function showRecipeDetails(recipe, fallbackBookmark) {
         description: "Details unavailable for this bookmark.",
         ingredients: [],
         instructions: "",
+        tip: "",
         link: ""
     };
 
@@ -259,6 +263,17 @@ function showRecipeDetails(recipe, fallbackBookmark) {
     steps.innerHTML = formatInstructionSteps(displayRecipe.instructions)
         .map((item) => `<li>${escapeHtml(item)}</li>`)
         .join("");
+
+    const tipText = String(displayRecipe.tip || "").trim();
+    if (tipText) {
+        tip.textContent = tipText;
+        tip.classList.remove("hidden");
+        tipHeading.classList.remove("hidden");
+    } else {
+        tip.textContent = "";
+        tip.classList.add("hidden");
+        tipHeading.classList.add("hidden");
+    }
 
     if (displayRecipe.link) {
         link.href = displayRecipe.link;

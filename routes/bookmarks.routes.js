@@ -20,11 +20,12 @@ router.post(
         body("ingredients").optional().isArray().withMessage("ingredients must be an array"),
         body("ingredients.*").optional({ values: "falsy" }).isString().withMessage("each ingredient must be a string"),
         body("instructions").optional({ values: "falsy" }).isString().withMessage("instructions must be a string"),
+        body("tip").optional({ values: "falsy" }).isString().withMessage("tip must be a string"),
         body("link").optional({ values: "falsy" }).isString().withMessage("link must be a string")
     ]),
     async (req, res) => {
     try {
-        const { recipe_id, recipe_name, recipe_image, cooking_method, source, description, ingredients, instructions, link } = req.body;
+        const { recipe_id, recipe_name, recipe_image, cooking_method, source, description, ingredients, instructions, tip, link } = req.body;
 
         // Make sure required fields are included.
         if (!recipe_id || !recipe_name) {
@@ -44,6 +45,7 @@ router.post(
                 ? ingredients.map((item) => String(item || "").trim()).filter(Boolean)
                 : [],
             instructions: instructions || "",
+            tip: tip || "",
             link: link || ""
         });
 
