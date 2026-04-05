@@ -519,7 +519,8 @@ async function addRecipeBookmark(recipe) {
         recipe_id: normalizeRecipeId(recipe),
         recipe_name: recipe.title || "Untitled recipe",
         recipe_image: recipe.image || "",
-        cooking_method: recipe.cooking_method || inferCookingMethodFromRecipe(recipe)
+        cooking_method: recipe.cooking_method || inferCookingMethodFromRecipe(recipe),
+        source: String(recipe.source || "").trim() || undefined
     };
 
     if (!window.BookmarkService || typeof window.BookmarkService.addBookmark !== "function") {
