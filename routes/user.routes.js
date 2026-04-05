@@ -57,6 +57,10 @@ function normalizeEmail(value) {
   return normalizeString(value).toLowerCase();
 }
 
+function isValidAllergenName(value) {
+  return /^[A-Za-z ]+$/.test(normalizeString(value));
+}
+
 function normalizeAllergens(allergens) {
   if (!Array.isArray(allergens)) {
     return [];
@@ -191,6 +195,11 @@ router.put(
     body("email").optional().isEmail().withMessage("Invalid email format"),
     body("password").optional().isString().withMessage("password must be a string"),
     body("allergens").optional().isArray().withMessage("allergens must be an array"),
+    body("allergens.*")
+      .optional()
+      .isString()
+      .matches(/^[A-Za-z ]+$/)
+      .withMessage("Each allergen can only contain letters and spaces"),
     body("avatar").optional().isString().withMessage("avatar must be a string")
   ]),
   async (req, res) => {
@@ -215,6 +224,10 @@ router.put(
       const nextUsername = hasUsername ? normalizeString(req.body.username) : user.username;
       const nextEmail = hasEmail ? normalizeEmail(req.body.email) : user.email;
       const nextAllergens = hasAllergens ? normalizeAllergens(req.body.allergens) : user.allergens || [];
+
+      if (hasAllergens && nextAllergens.some((item) => !isValidAllergenName(item))) {
+        return res.status(400).json({ message: "Allergens can only contain letters, spaces, and commas" });
+      }
 
       if (hasFullName && !nextFullName) {
         return res.status(400).json({ message: "Full name cannot be empty" });
@@ -302,7 +315,11 @@ router.put(
   verifyToken,
   validateRequest([
     body("allergens").isArray().withMessage("Allergens must be an array"),
-    body("allergens.*").optional().isString().withMessage("Each allergen must be a string")
+    body("allergens.*")
+      .optional()
+      .isString()
+      .matches(/^[A-Za-z ]+$/)
+      .withMessage("Each allergen can only contain letters and spaces")
   ]),
   async (req, res) => {
   try {
@@ -318,6 +335,10 @@ router.put(
         .map((item) => String(item || "").trim())
         .filter((item) => item.length > 0)
     )];
+
+    if (normalizedAllergens.some((item) => !isValidAllergenName(item))) {
+      return res.status(400).json({ message: "Allergens can only contain letters, spaces, and commas" });
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,

@@ -68,6 +68,10 @@ function isStrongPassword(password) {
     && /\d/.test(password);
 }
 
+function isValidAllergenName(value) {
+  return /^[A-Za-z ]+$/.test(String(value || "").trim());
+}
+
 function generateResetCode() {
   return String(crypto.randomInt(100000, 1000000));
 }
@@ -91,7 +95,12 @@ router.post(
       .withMessage("Password must contain a lowercase letter")
       .matches(/\d/)
       .withMessage("Password must contain a number"),
-    body("allergens").optional().isArray().withMessage("Allergens must be an array")
+    body("allergens").optional().isArray().withMessage("Allergens must be an array"),
+    body("allergens.*")
+      .optional()
+      .isString()
+      .matches(/^[A-Za-z ]+$/)
+      .withMessage("Each allergen can only contain letters and spaces")
   ]),
   (req, res) => {
   // Steps: validate input, check for duplicate email, hash password, save user, and return a token.
@@ -119,6 +128,11 @@ router.post(
         .map((item) => String(item || "").trim())
         .filter((item) => item.length > 0)
     )];
+
+    const hasInvalidAllergens = normalizedAllergens.some((item) => !isValidAllergenName(item));
+    if (hasInvalidAllergens) {
+      return res.status(400).json({ message: "Allergens can only contain letters, spaces, and commas" });
+    }
   }
 
     // Stop if this email is already registered.

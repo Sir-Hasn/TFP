@@ -75,6 +75,25 @@ let latestAllRecipes = [];
 let bookmarkedRecipeIds = new Set();
 let bookmarkIdByRecipeId = new Map();
 let forgotPasswordEmail = "";
+const ALLERGEN_ALLOWED_CHARACTERS = /^[A-Za-z, ]*$/;
+
+function sanitizeAllergenText(value) {
+    return String(value || "")
+        .replace(/[^A-Za-z, ]/g, "")
+        .replace(/ +, +/g, ", ")
+        .replace(/ {2,}/g, " ");
+}
+
+function parseAllergenList(value) {
+    return sanitizeAllergenText(value)
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+}
+
+function hasInvalidAllergenCharacters(value) {
+    return !ALLERGEN_ALLOWED_CHARACTERS.test(String(value || ""));
+}
 
 function getForgotModalElements() {
     return {
@@ -361,10 +380,8 @@ function applyRecipeFilters(recipes) {
     const methodFilter = document.getElementById("method-filter")?.value || "";
     const timeFilter = Number.parseInt(document.getElementById("time-filter")?.value || "0", 10);
     const allergenInput = document.getElementById("allergen-filter")?.value || "";
-    const allergenFilter = allergenInput
-        .split(",")
-        .map((item) => item.trim().toLowerCase())
-        .filter((item) => item.length > 0);
+    const allergenFilter = parseAllergenList(allergenInput)
+        .map((item) => item.toLowerCase());
 
     return recipes.filter((recipe) => {
         // Infer cooking method if not present
@@ -403,7 +420,7 @@ function applyRecipeFilters(recipes) {
 function hasActiveRecipeFilters() {
     const methodFilter = document.getElementById("method-filter")?.value || "";
     const timeFilter = document.getElementById("time-filter")?.value || "";
-    const allergenFilter = document.getElementById("allergen-filter")?.value || "";
+    const allergenFilter = sanitizeAllergenText(document.getElementById("allergen-filter")?.value || "");
 
     return Boolean(methodFilter.trim() || timeFilter.trim() || allergenFilter.trim());
 }
@@ -899,6 +916,13 @@ function initRecipeSearch() {
         timeFilter.addEventListener("input", handleFilterChange);
     }
     if (allergenFilter) {
+        allergenFilter.addEventListener("input", () => {
+            const sanitized = sanitizeAllergenText(allergenFilter.value);
+            if (sanitized !== allergenFilter.value) {
+                allergenFilter.value = sanitized;
+            }
+            handleFilterChange();
+        });
         allergenFilter.addEventListener("change", handleFilterChange);
     }
     if (resetFilterBtn) {
@@ -963,7 +987,7 @@ function initRecipeSearch() {
         // Load user allergens if logged in
         fetchUserAllergens().then((userAllergens) => {
             if (userAllergens.length > 0 && allergenFilter) {
-                allergenFilter.value = userAllergens.join(", ");
+                allergenFilter.value = sanitizeAllergenText(userAllergens.join(", "));
             }
             if (userAllergens.length > 0 && filtersContent) {
                 filtersContent.classList.remove("hidden");
@@ -1166,9 +1190,17 @@ async function handleSignupSubmit(event) {
     const email = emailInput ? emailInput.value.trim() : "";
     const password = passwordInput ? passwordInput.value : "";
     const allergensInput = document.getElementById("allergens");
-    const allergens = allergensInput
-        ? allergensInput.value.split(",").map(a => a.trim()).filter(a => a)
-        : [];
+    const rawAllergens = allergensInput ? allergensInput.value : "";
+
+    if (hasInvalidAllergenCharacters(rawAllergens)) {
+        setAuthMessage("Allergens can only contain letters, spaces, and commas.");
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+        return;
+    }
+
+    const allergens = parseAllergenList(rawAllergens);
     const validationError = validateSignupInput(username, email, password);
 
     if (validationError) {
@@ -1317,6 +1349,7 @@ function initGuestAuth() {
     const signupForm = document.getElementById("signup-form");
     const forgotForm = document.getElementById("forgot-form");
     const resetForm = document.getElementById("reset-form");
+    const signupAllergensInput = document.getElementById("allergens");
 
     if (loginForm) {
         loginForm.addEventListener("submit", handleLoginSubmit);
@@ -1324,6 +1357,15 @@ function initGuestAuth() {
 
     if (signupForm) {
         signupForm.addEventListener("submit", handleSignupSubmit);
+    }
+
+    if (signupAllergensInput) {
+        signupAllergensInput.addEventListener("input", () => {
+            const sanitized = sanitizeAllergenText(signupAllergensInput.value);
+            if (sanitized !== signupAllergensInput.value) {
+                signupAllergensInput.value = sanitized;
+            }
+        });
     }
 
     if (forgotForm) {

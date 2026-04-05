@@ -146,6 +146,19 @@ function formatTimePreference(value) {
   }
 }
 
+function sanitizeAllergenList(values) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return [...new Set(
+    values
+      .map((item) => String(item || "").trim())
+      .filter((item) => item.length > 0)
+      .filter((item) => /^[A-Za-z ]+$/.test(item))
+  )];
+}
+
 function sanitizeAiSuggestion(rawText, options = {}) {
   const useSavedAllergens = Boolean(options.useSavedAllergens);
   const text = String(rawText || "").replace(/\r/g, "");
@@ -207,7 +220,7 @@ router.post("/suggest", verifyToken, async (req, res) => {
       return res.status(400).json({ message: "Please provide at least one ingredient." });
     }
 
-    const allergens = useSavedAllergens ? (user?.allergens || []) : [];
+    const allergens = useSavedAllergens ? sanitizeAllergenList(user?.allergens || []) : [];
     const recentRecipes = cookingHistory.slice(0, 5).map(entry => entry.recipe_name);
     const ingredientSummary = requestedIngredients.length > 0
       ? requestedIngredients.join(", ")

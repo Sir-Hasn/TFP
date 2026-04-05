@@ -104,7 +104,7 @@
                     <i class="fas fa-eye"></i>
                 </button>
             </div>
-            <input type="text" id="allergens" placeholder="Allergens (comma-separated, e.g. shrimp,peanuts)">
+            <input type="text" id="allergens" placeholder="Allergens (comma-separated, e.g. shrimp,peanuts)" pattern="[A-Za-z, ]*" title="Use letters, spaces, and commas only.">
             <button type="submit" class="auth-btn">Start Cooking</button>
         </form>
         <p id="signup-message" class="auth-message" role="status" aria-live="polite"></p>

@@ -8,6 +8,7 @@ const state = {
     avatarDataUrl: "",
     saving: false
 };
+const ALLERGEN_ALLOWED_CHARACTERS = /^[A-Za-z, ]*$/;
 
 function getToken() {
     return localStorage.getItem("token");
@@ -36,6 +37,24 @@ function normalizeEmail(value) {
 
 function splitList(value) {
     return String(value || "")
+        .split(",")
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+}
+
+function sanitizeAllergenText(value) {
+    return String(value || "")
+        .replace(/[^A-Za-z, ]/g, "")
+        .replace(/ +, +/g, ", ")
+        .replace(/ {2,}/g, " ");
+}
+
+function hasInvalidAllergenCharacters(value) {
+    return !ALLERGEN_ALLOWED_CHARACTERS.test(String(value || ""));
+}
+
+function splitAllergens(value) {
+    return sanitizeAllergenText(value)
         .split(",")
         .map((item) => item.trim())
         .filter((item) => item.length > 0);
@@ -145,7 +164,7 @@ function renderProfile(profile) {
     if (fullNameInput) fullNameInput.value = profile.full_name || "";
     if (usernameInput) usernameInput.value = profile.username || "";
     if (emailInput) emailInput.value = profile.email || "";
-    if (allergensInput) allergensInput.value = (profile.allergens || []).join(", ");
+    if (allergensInput) allergensInput.value = sanitizeAllergenText((profile.allergens || []).join(", "));
     if (passwordInput) passwordInput.value = "";
 
     if (sidebarName) sidebarName.textContent = profile.full_name || profile.username || "Your Name";
@@ -323,11 +342,16 @@ async function handleProfileSubmit(event) {
     const password = document.getElementById("password")?.value;
     const allergens = document.getElementById("allergens")?.value;
 
+    if (hasInvalidAllergenCharacters(allergens)) {
+        setStatus("Allergens can only contain letters, spaces, and commas.", true);
+        return;
+    }
+
     const payload = {
         full_name: normalizeText(fullName),
         username: normalizeText(username),
         email: normalizeEmail(email),
-        allergens: splitList(allergens)
+        allergens: splitAllergens(allergens)
     };
 
     if (normalizeText(password).length > 0) {
@@ -383,6 +407,7 @@ function attachEvents() {
     const avatarInput = document.getElementById("profileAvatarInput");
     const cancelBtn = document.getElementById("cancelBtn");
     const logoutLink = document.getElementById("logout-link");
+    const allergensInput = document.getElementById("allergens");
 
     if (profileForm) {
         profileForm.addEventListener("submit", handleProfileSubmit);
@@ -398,6 +423,15 @@ function attachEvents() {
 
     if (logoutLink) {
         logoutLink.addEventListener("click", handleLogout);
+    }
+
+    if (allergensInput) {
+        allergensInput.addEventListener("input", () => {
+            const sanitized = sanitizeAllergenText(allergensInput.value);
+            if (sanitized !== allergensInput.value) {
+                allergensInput.value = sanitized;
+            }
+        });
     }
 
     ["fullName", "username", "email"].forEach((id) => {
