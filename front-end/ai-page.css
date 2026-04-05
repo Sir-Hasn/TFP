@@ -434,16 +434,30 @@ input:checked + .slider:before {
     text-align: center;
 }
 
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
 .footer-brand {
     font-weight: 800;
-    font-family: 'Poppins';
-    font-size: large   ;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
     margin-bottom: 10px;
 }
 
 .footer-bottom {
     font-size: 0.7rem;
     opacity: 0.5;
+}
+
+.footer-bottom p {
+    margin: 0;
 }
 
 @media (max-width: 900px) {
